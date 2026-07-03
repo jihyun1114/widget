@@ -25,7 +25,7 @@
   .wnav a[aria-current="page"]{background:#F5C4D6;color:#4A3F49;}
   .wnav .ico{display:inline-flex;align-items:center}
   .wnav .ico svg{width:16px;height:16px;display:block}
-  @media(max-width:560px){.wnav .lbl{display:none}}
+  .wnav .lbl{display:none}
 
   .head{max-width:980px;margin:0 auto 14px;display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:2px 4px;}
   .head h1{font-family:'Fredoka',sans-serif;font-weight:600;font-size:26px;margin:0;}
@@ -72,11 +72,14 @@
   <a class="home icon-only" href="index.html" title="홈"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7"/><path d="M6 10v9h12v-9"/></svg></span></a>
   <a class="icon-only" href="dashboard.html" aria-current="page" title="대시보드"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></span></a>
   <span class="sp"></span>
-  <a href="pomodoro.html"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 1.8"/></svg></span><span class="lbl">뽀모도로</span></a>
-  <a href="routine.html"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9.5h16"/><path d="M8.5 3v4"/><path d="M15.5 3v4"/></svg></span><span class="lbl">루틴</span></a>
-  <a href="todo.html"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l2.5 2.5L21 4.5"/><path d="M20.5 12.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h10.5"/></svg></span><span class="lbl">할 일</span></a>
-  <a href="papers.html"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9z"/><path d="M13 3v6h6"/><path d="M8.5 13.5h7"/><path d="M8.5 17h7"/></svg></span><span class="lbl">논문</span></a>
-  <a href="jobs.html"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/></svg></span><span class="lbl">잡마켓</span></a>
+  <a href="pomodoro.html" title="뽀모도로"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 1.8"/></svg></span><span class="lbl">뽀모도로</span></a>
+  <a href="routine.html" title="루틴"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9.5h16"/><path d="M8.5 3v4"/><path d="M15.5 3v4"/></svg></span><span class="lbl">루틴</span></a>
+  <a href="todo.html" title="할 일"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l2.5 2.5L21 4.5"/><path d="M20.5 12.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h10.5"/></svg></span><span class="lbl">할 일</span></a>
+  <a href="papers.html" title="논문"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9z"/><path d="M13 3v6h6"/><path d="M8.5 13.5h7"/><path d="M8.5 17h7"/></svg></span><span class="lbl">논문</span></a>
+  <a href="jobs.html" title="잡마켓"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/></svg></span><span class="lbl">잡마켓</span></a>
+  <a href="countdown.html" title="마감 카운트다운"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="7.5"/><path d="M12 9.5V13l2.5 1.6"/><path d="M9.5 2.5h5"/></svg></span><span class="lbl">카운트다운</span></a>
+  <a href="roadmap.html" title="로드맵"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/></svg></span><span class="lbl">로드맵</span></a>
+  <a href="daily.html" title="데일리"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5"/><path d="M12 19v2.5"/><path d="M4.5 12H2"/><path d="M22 12h-2.5"/><path d="M5.5 5.5l1.7 1.7"/><path d="M16.8 16.8l1.7 1.7"/><path d="M5.5 18.5l1.7-1.7"/><path d="M16.8 7.2l1.7-1.7"/></svg></span><span class="lbl">데일리</span></a>
 </nav>
 
 <div class="head">
@@ -90,7 +93,8 @@
 <div class="dash" id="dash"></div>
 
 <script>
-const KEYS={todo:'jihyun-todo-widget-v1',pomo:'pomodoro_v1',routine:'weekly_routine_v1',papers:'paper_pipeline_v1',jobs:'job_market_v1'};
+const KEYS={todo:'jihyun-todo-widget-v1',pomo:'pomodoro_v1',routine:'weekly_routine_v1',papers:'paper_pipeline_v1',jobs:'job_market_v1',countdown:'deadline_countdown_v1',daily:'daily_v1'};
+const MOODS={great:'최고',good:'좋음',ok:'보통',meh:'별로',hard:'힘듦'};
 const STAGES=[
   {id:'draft',name:'초안',color:'#F5C4D6'},{id:'internal',name:'내부 리뷰',color:'#F8CBC4'},
   {id:'submitted',name:'제출',color:'#F6E7B4'},{id:'review',name:'심사 중',color:'#BCDCF0'},
@@ -103,11 +107,14 @@ const ICONS={
   doc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9z"/><path d="M13 3v6h6"/><path d="M8.5 13.5h7"/><path d="M8.5 17h7"/></svg>',
   flag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V5"/><path d="M5 5c3-2 7 2 10 0v8c-3 2-7-2-10 0"/></svg>',
   brief:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/></svg>',
+  sun:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2"/><path d="M12 19.5v2"/><path d="M2.5 12h2"/><path d="M19.5 12h2"/><path d="M5.5 5.5l1.4 1.4"/><path d="M17.1 17.1l1.4 1.4"/><path d="M5.5 18.5l1.4-1.4"/><path d="M17.1 6.9l1.4-1.4"/></svg>',
 };
 const JSTATUS={interested:'#F5C4D6',preparing:'#F8CBC4',applied:'#F6E7B4',interview:'#BCDCF0',offer:'#C6E6D6',closed:'#D8CEDA'};
 function read(k){try{const s=JSON.parse(localStorage.getItem(k));return s||null;}catch(e){return null;}}
 function esc(s){return(s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
 function today(){return new Date().toISOString().slice(0,10);}
+function ds(d){const x=new Date(d);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');}
+function ddDays(due){const t=new Date();t.setHours(0,0,0,0);return Math.round((new Date(due+'T00:00:00')-t)/86400000);}
 function ddInfo(due){
   const t=new Date();t.setHours(0,0,0,0);
   const diff=Math.round((new Date(due+'T00:00:00')-t)/86400000);
@@ -233,9 +240,43 @@ function buildJobs(){
   return card('brief','#4E8A72',`잡마켓 · ${j.length}곳`,'jobs.html',body+(list?('<div style="margin-top:4px">'+list+'</div>'):''));
 }
 
+function buildCountdown(){
+  const d=read(KEYS.countdown);
+  if(!d||!d.items) return card('flag','#C0704A','다가오는 마감','countdown.html','<div class="empty">아직 데이터 없음 · 카운트다운 위젯을 열어보세요</div>');
+  const items=[...d.items].sort((a,b)=>a.date<b.date?-1:1);
+  const up=items.filter(x=>ddDays(x.date)>=0);
+  const show=(up.length?up:items.slice(-3)).slice(0,5);
+  const body=show.map(x=>{const dd=ddInfo(x.date);
+    return `<div class="row"><span class="dot" style="background:${x.color||'#ccc'}"></span>
+      <span class="tx">${esc(x.title)}</span><span class="rt">${x.date.slice(5)}</span>
+      <span class="dd ${dd.c}">${dd.l}</span></div>`;}).join('');
+  return card('flag','#C0704A','다가오는 마감','countdown.html',body||'<div class="empty">없음</div>');
+}
+function buildDaily(){
+  const d=read(KEYS.daily);
+  const y=new Date().getFullYear();const start=new Date(y,0,1),end=new Date(y+1,0,1);
+  const pct=((Date.now()-start)/(end-start)*100).toFixed(1);
+  const daysLeft=Math.ceil((end-Date.now())/86400000);
+  let moodStr='—',habitStr='—';
+  if(d){
+    const tk=ds(new Date());
+    if(d.moods&&d.moods[tk])moodStr=MOODS[d.moods[tk]]||'기록됨';
+    if(Array.isArray(d.habits)&&d.habits.length){
+      const done=d.habits.filter(h=>h.done&&h.done[tk]).length;
+      habitStr=`${done}/${d.habits.length} 완료`;
+    }
+  }
+  const body=`
+    <div style="height:9px;border-radius:999px;background:#F1EAF0;overflow:hidden;margin-bottom:9px"><span style="display:block;height:100%;width:${pct}%;background:linear-gradient(90deg,#F5C4D6,#CBC3F0)"></span></div>
+    <div class="row" style="border-top:none;padding-top:0"><span class="tx">${y} 진행</span><span class="rt">${pct}% · ${daysLeft}일 남음</span></div>
+    <div class="row"><span class="tx">오늘 기분</span><span class="rt">${moodStr}</span></div>
+    <div class="row"><span class="tx">습관</span><span class="rt">${habitStr}</span></div>`;
+  return card('sun','#C56590','오늘 · 데일리','daily.html',body);
+}
+
 function render(){
   document.getElementById('today').textContent=new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
-  const parts=[buildTodo(),buildPapers(),buildJobs(),buildRoutine(),buildDeadlines(),buildPomo()].filter(Boolean);
+  const parts=[buildDaily(),buildTodo(),buildCountdown(),buildPapers(),buildJobs(),buildRoutine(),buildDeadlines(),buildPomo()].filter(Boolean);
   document.getElementById('dash').innerHTML=parts.join('');
 }
 document.getElementById('refresh').onclick=render;

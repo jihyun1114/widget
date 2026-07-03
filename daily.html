@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>데일리</title>
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&display=swap');
+  :root{--paper:#FCFAFB;--surface:#fff;--ink:#4A3F49;--soft:#7C707C;--faint:#B3A8B3;--rule:#EFE6EE;--rule2:#E4D8E2;--radius:14px;--accent:#C56590;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:var(--paper);}
+  body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;padding:16px;}
+    .wnav{flex-wrap:wrap;max-width:1180px;margin:0 auto 12px;display:flex;align-items:center;gap:6px;
+    background:#fff;border:1px solid #EFE6EE;border-radius:12px;padding:6px;
+    box-shadow:0 8px 22px -18px rgba(126,80,120,.35);}
+  .wnav a{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-size:13px;font-weight:600;color:#7C707C;padding:7px 12px;border-radius:8px;transition:background .14s,color .14s;line-height:1;}
+  .wnav a:hover{background:#FBF3F8;color:#4A3F49;}
+  .wnav a.icon-only{padding:7px 9px;}
+  .wnav .sp{flex:1;}
+  .wnav a[aria-current="page"]{background:#F5C4D6;color:#4A3F49;}
+  .wnav .ico{display:inline-flex;align-items:center}
+  .wnav .ico svg{width:16px;height:16px;display:block}
+  .wnav .lbl{display:none}
+  .dash{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:14px;}
+  .head{display:flex;align-items:baseline;justify-content:space-between;padding:0 4px;}
+  .head h1{font-family:'Fredoka',sans-serif;font-weight:600;font-size:26px;margin:0;}
+  .head .dt{font-size:12.5px;color:var(--soft);font-weight:500;}
+  .card{background:var(--surface);border:1px solid var(--rule);border-radius:var(--radius);padding:15px 16px 14px;box-shadow:0 10px 26px -20px rgba(126,80,120,.35);}
+  .card h2{font-family:'Fredoka',sans-serif;font-weight:500;font-size:14px;margin:0 0 11px;color:var(--ink);display:flex;align-items:center;gap:7px;}
+  .card h2 .tiny{font-size:11px;color:var(--faint);font-weight:400;margin-left:auto;font-family:'Pretendard';}
+
+  /* year progress */
+  .ybar{height:12px;border-radius:999px;background:#F1EAF0;overflow:hidden;margin:2px 0 8px;}
+  .ybar span{display:block;height:100%;background:linear-gradient(90deg,#F5C4D6,#CBC3F0);}
+  .yinfo{display:flex;justify-content:space-between;font-size:12px;color:var(--soft);}
+  .yinfo b{font-family:'Fredoka',sans-serif;color:var(--ink);}
+
+  /* habits */
+  .habit{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--rule);}
+  .habit:first-of-type{border-top:none;}
+  .habit .hn{flex:1;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .week{display:flex;gap:4px;}
+  .wd{width:22px;text-align:center;}
+  .wd .lab{font-size:9px;color:var(--faint);}
+  .wd .d{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--rule2);margin:2px auto 0;cursor:pointer;background:#fff;transition:.12s;}
+  .wd .d.on{background:var(--accent);border-color:var(--accent);}
+  .wd.today .d{box-shadow:0 0 0 2px #F5C4D6;}
+  .wd .d.future{opacity:.35;cursor:default;}
+  .streak{font-size:11px;color:var(--soft);white-space:nowrap;min-width:34px;text-align:right;}
+  .streak b{color:#C56590;font-family:'Fredoka',sans-serif;}
+  .hx{color:var(--faint);cursor:pointer;font-size:15px;padding:0 2px;opacity:0;}
+  .habit:hover .hx{opacity:1;}
+  .hx:hover{color:#C85C7A;}
+  .addrow{display:flex;gap:6px;margin-top:9px;}
+  .addrow input{flex:1;font:inherit;font-size:12.5px;padding:7px 9px;border:1px solid var(--rule2);border-radius:8px;background:var(--surface);}
+  .addrow button{font:inherit;font-size:12.5px;font-weight:600;padding:7px 12px;border-radius:8px;background:var(--accent);color:#fff;border:none;cursor:pointer;}
+
+  /* mood */
+  .moods{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+  .moodbtn{flex:1;min-width:56px;font:inherit;font-size:11.5px;font-weight:600;color:var(--soft);background:var(--surface);border:1.5px solid var(--rule2);border-radius:10px;padding:8px 4px;cursor:pointer;transition:.13s;text-align:center;}
+  .moodbtn .em{display:block;margin:0 auto 3px;width:22px;height:22px;color:var(--soft);}
+  .moodbtn .em svg{width:22px;height:22px;display:block;}
+  .moodbtn.on .em{color:var(--ink);}
+  .moodbtn.on{color:var(--ink);}
+  .heat{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+  .heat .cell{aspect-ratio:1;border-radius:5px;background:#F3EEF3;}
+  .heat .cell.today{box-shadow:0 0 0 2px #C56590;}
+  .heatlabel{font-size:10.5px;color:var(--faint);margin-top:7px;text-align:right;}
+
+  /* journal */
+  .jinput{width:100%;font:inherit;font-size:13.5px;padding:10px 11px;border:1px solid var(--rule2);border-radius:10px;background:var(--surface);color:var(--ink);resize:vertical;min-height:44px;line-height:1.4;}
+  .jinput:focus{outline:none;border-color:#C9A9C0;}
+  .jlist{margin-top:10px;display:flex;flex-direction:column;gap:0;}
+  .jentry{padding:8px 0;border-top:1px solid var(--rule);font-size:12.5px;color:var(--ink);display:flex;gap:9px;}
+  .jentry .jd{color:var(--faint);white-space:nowrap;font-variant-numeric:tabular-nums;flex:none;}
+  .jentry .jt{flex:1;line-height:1.4;}
+  .jempty{font-size:12px;color:var(--faint);padding:6px 0;}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+</head>
+<body>
+<nav class="wnav">
+  <a class="home icon-only" href="index.html" title="홈"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7"/><path d="M6 10v9h12v-9"/></svg></span></a>
+  <a class="icon-only" href="dashboard.html" title="대시보드"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></span></a>
+  <span class="sp"></span>
+  <a href="pomodoro.html" title="뽀모도로"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 1.8"/></svg></span><span class="lbl">뽀모도로</span></a>
+  <a href="routine.html" title="루틴"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9.5h16"/><path d="M8.5 3v4"/><path d="M15.5 3v4"/></svg></span><span class="lbl">루틴</span></a>
+  <a href="todo.html" title="할 일"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l2.5 2.5L21 4.5"/><path d="M20.5 12.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h10.5"/></svg></span><span class="lbl">할 일</span></a>
+  <a href="papers.html" title="논문"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9z"/><path d="M13 3v6h6"/><path d="M8.5 13.5h7"/><path d="M8.5 17h7"/></svg></span><span class="lbl">논문</span></a>
+  <a href="jobs.html" title="잡마켓"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/></svg></span><span class="lbl">잡마켓</span></a>
+  <a href="countdown.html" title="마감 카운트다운"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="7.5"/><path d="M12 9.5V13l2.5 1.6"/><path d="M9.5 2.5h5"/></svg></span><span class="lbl">카운트다운</span></a>
+  <a href="roadmap.html" title="로드맵"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/></svg></span><span class="lbl">로드맵</span></a>
+  <a href="daily.html" title="데일리" aria-current="page"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5"/><path d="M12 19v2.5"/><path d="M4.5 12H2"/><path d="M22 12h-2.5"/><path d="M5.5 5.5l1.7 1.7"/><path d="M16.8 16.8l1.7 1.7"/><path d="M5.5 18.5l1.7-1.7"/><path d="M16.8 7.2l1.7-1.7"/></svg></span><span class="lbl">데일리</span></a>
+</nav>
+<div class="dash">
+  <div class="head"><h1>Daily</h1><span class="dt" id="today"></span></div>
+
+  <div class="card">
+    <h2>올해 진행<span class="tiny" id="yleft"></span></h2>
+    <div class="ybar"><span id="ybar"></span></div>
+    <div class="yinfo"><span id="ypct"></span><span id="ydays"></span></div>
+  </div>
+
+  <div class="card">
+    <h2>습관<span class="tiny">이번 주</span></h2>
+    <div id="habits"></div>
+    <div class="addrow"><input id="habitInput" type="text" placeholder="습관 추가 (예: 운동)" maxlength="30"><button id="habitAdd">추가</button></div>
+  </div>
+
+  <div class="card">
+    <h2>오늘 기분<span class="tiny">최근 5주</span></h2>
+    <div class="moods" id="moods"></div>
+    <div class="heat" id="heat"></div>
+  </div>
+
+  <div class="card">
+    <h2>한 줄 일기<span class="tiny" id="jtoday"></span></h2>
+    <textarea class="jinput" id="jinput" placeholder="오늘 한 줄 · 감사한 것…" rows="1"></textarea>
+    <div class="jlist" id="jlist"></div>
+  </div>
+</div>
+<script>
+const KEY='daily_v1';
+const MOODS=[
+  {id:'great',label:'최고',color:'#A9D8B8',svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="9" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1" fill="currentColor" stroke="none"/><path d="M7.5 13.5c1.6 2.4 7.4 2.4 9 0"/></svg>'},
+  {id:'good', label:'좋음',color:'#BCDCF0',svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="9" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1" fill="currentColor" stroke="none"/><path d="M8.5 14c1.1 1.4 5.9 1.4 7 0"/></svg>'},
+  {id:'ok',   label:'보통',color:'#F6E7B4',svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="9" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1" fill="currentColor" stroke="none"/><path d="M8.5 14.5h7"/></svg>'},
+  {id:'meh',  label:'별로',color:'#F8CBC4',svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="9" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1" fill="currentColor" stroke="none"/><path d="M8.5 15.2c1.1-1 5.9-1 7 0"/></svg>'},
+  {id:'hard', label:'힘듦',color:'#CBB8D6',svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="9" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1" fill="currentColor" stroke="none"/><path d="M7.5 15.6c1.6-2.2 7.4-2.2 9 0"/></svg>'},
+];
+const DEFAULT={habits:[
+  {id:'h1',name:'운동',done:{}},
+  {id:'h2',name:'논문 읽기',done:{}},
+  {id:'h3',name:'물 마시기',done:{}},
+],moods:{},journal:{}};
+let state=load();
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&Array.isArray(s.habits))return Object.assign({moods:{},journal:{}},s);}catch(e){}return structuredClone(DEFAULT);}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+const $=id=>document.getElementById(id);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+function esc(s){return(s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+function ds(d){const x=new Date(d);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');}
+const TODAY=ds(new Date());
+
+/* year progress */
+function renderYear(){
+  const y=new Date().getFullYear();
+  const start=new Date(y,0,1),end=new Date(y+1,0,1);
+  const pct=(Date.now()-start)/(end-start)*100;
+  const daysLeft=Math.ceil((end-Date.now())/86400000);
+  $('ybar').style.width=pct.toFixed(1)+'%';
+  $('ypct').innerHTML=`<b>${y}</b> · ${pct.toFixed(1)}% 지남`;
+  $('ydays').textContent=daysLeft+'일 남음';
+  $('yleft').textContent='';
+}
+
+/* habits */
+function weekDates(){
+  const t=new Date();const off=(t.getDay()+6)%7;
+  const mon=new Date(t);mon.setDate(t.getDate()-off);mon.setHours(0,0,0,0);
+  return [...Array(7)].map((_,i)=>{const d=new Date(mon);d.setDate(mon.getDate()+i);return ds(d);});
+}
+function streak(done){
+  let n=0;const d=new Date();
+  if(!done[ds(d)])d.setDate(d.getDate()-1);
+  while(done[ds(d)]){n++;d.setDate(d.getDate()-1);}
+  return n;
+}
+const WL=['월','화','수','목','금','토','일'];
+function renderHabits(){
+  const wrap=$('habits');wrap.innerHTML='';
+  const wk=weekDates();
+  if(!state.habits.length){wrap.innerHTML='<div class="jempty">습관 없음. 아래에서 추가하세요.</div>';return;}
+  state.habits.forEach(h=>{
+    const row=document.createElement('div');row.className='habit';
+    const days=wk.map((dt,i)=>{
+      const on=!!h.done[dt];const isToday=dt===TODAY;const future=dt>TODAY;
+      return `<div class="wd${isToday?' today':''}"><div class="lab">${WL[i]}</div><div class="d${on?' on':''}${future?' future':''}" data-dt="${dt}"></div></div>`;
+    }).join('');
+    row.innerHTML=`<span class="hn">${esc(h.name)}</span><div class="week">${days}</div><span class="streak">🔥<b>${streak(h.done)}</b></span><span class="hx" title="삭제">×</span>`;
+    row.querySelectorAll('.d').forEach(d=>{
+      const dt=d.dataset.dt;if(dt>TODAY)return;
+      d.onclick=()=>{if(h.done[dt])delete h.done[dt];else h.done[dt]=true;save();renderHabits();};
+    });
+    row.querySelector('.hx').onclick=()=>{state.habits=state.habits.filter(x=>x.id!==h.id);save();renderHabits();};
+    wrap.appendChild(row);
+  });
+}
+$('habitAdd').onclick=addHabit;
+$('habitInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing)addHabit();});
+function addHabit(){const v=$('habitInput').value.trim();if(!v)return;state.habits.push({id:uid(),name:v,done:{}});$('habitInput').value='';save();renderHabits();}
+
+/* mood */
+function renderMood(){
+  const mwrap=$('moods');mwrap.innerHTML='';
+  MOODS.forEach(m=>{
+    const on=state.moods[TODAY]===m.id;
+    const b=document.createElement('button');b.className='moodbtn'+(on?' on':'');
+    if(on){b.style.background=m.color+'55';b.style.borderColor=m.color;}
+    b.innerHTML=`<span class="em">${m.svg}</span>${m.label}`;
+    b.onclick=()=>{if(state.moods[TODAY]===m.id)delete state.moods[TODAY];else state.moods[TODAY]=m.id;save();renderMood();};
+    mwrap.appendChild(b);
+  });
+  const heat=$('heat');heat.innerHTML='';
+  const t=new Date();const off=(t.getDay()+6)%7;
+  const mon=new Date(t);mon.setDate(t.getDate()-off-28);mon.setHours(0,0,0,0);
+  for(let i=0;i<35;i++){const d=new Date(mon);d.setDate(mon.getDate()+i);const key=ds(d);
+    const mood=MOODS.find(m=>m.id===state.moods[key]);
+    const cell=document.createElement('div');cell.className='cell'+(key===TODAY?' today':'');
+    if(mood)cell.style.background=mood.color;
+    cell.title=key+(mood?(' · '+mood.label):'');
+    heat.appendChild(cell);
+  }
+}
+
+/* journal */
+function renderJournal(){
+  document.getElementById('jtoday').textContent='오늘 · '+new Date().toLocaleDateString('ko-KR',{month:'long',day:'numeric'});
+  $('jinput').value=state.journal[TODAY]||'';
+  const list=$('jlist');list.innerHTML='';
+  const keys=Object.keys(state.journal).filter(k=>k!==TODAY&&state.journal[k]).sort().reverse().slice(0,6);
+  if(!keys.length){list.innerHTML='<div class="jempty">지난 기록이 여기 쌓여요.</div>';return;}
+  keys.forEach(k=>{const e=document.createElement('div');e.className='jentry';
+    e.innerHTML=`<span class="jd">${k.slice(5)}</span><span class="jt">${esc(state.journal[k])}</span>`;list.appendChild(e);});
+}
+const ji=$('jinput');
+function saveJournal(){const v=ji.value.trim();if(v)state.journal[TODAY]=v;else delete state.journal[TODAY];save();}
+ji.addEventListener('blur',()=>{saveJournal();renderJournal();});
+ji.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();ji.blur();}});
+
+function renderTop(){$('today').textContent=new Date().toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'long'});}
+renderTop();renderYear();renderHabits();renderMood();renderJournal();
+</script>
+</body>
+</html>

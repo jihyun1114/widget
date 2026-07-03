@@ -25,7 +25,32 @@
     font-family:'Pretendard',system-ui,-apple-system,'Segoe UI',sans-serif;
     color:var(--ink);-webkit-font-smoothing:antialiased;padding:18px 14px 28px;line-height:1.45;min-height:100vh;
   }
-  .wrap{max-width:640px;margin:0 auto}
+  .wrap{max-width:900px;margin:0 auto}
+
+  /* ---------- timeline / time-blocking ---------- */
+  .layout{display:flex;gap:16px;align-items:flex-start;}
+  .tl-pane{flex:0 0 214px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:10px 10px 8px;box-shadow:var(--shadow);}
+  .todo-pane{flex:1;min-width:0;}
+  .tl-head{display:flex;align-items:center;font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:8px;padding:0 2px;}
+  .tl-clear{margin-left:auto;font:inherit;font-size:10.5px;color:var(--ink-faint);background:none;border:1px solid var(--line);border-radius:6px;padding:3px 8px;cursor:pointer;}
+  .tl-clear:hover{color:var(--ink);background:var(--paper);}
+  .tl-scroll{max-height:72vh;overflow-y:auto;overflow-x:hidden;}
+  .tl-rail{position:relative;margin-left:28px;}
+  .tl-hourline{position:absolute;left:-28px;right:0;border-top:1px solid var(--line);}
+  .tl-hour{position:absolute;left:-28px;transform:translateY(-50%);font-size:9.5px;color:var(--ink-faint);width:24px;text-align:right;font-variant-numeric:tabular-nums;}
+  .tl-block{position:absolute;left:2px;right:2px;border-radius:7px;padding:3px 6px;overflow:hidden;cursor:grab;border:1px solid var(--edge,rgba(0,0,0,.06));box-shadow:0 1px 3px rgba(45,55,52,.09);touch-action:none;}
+  .tl-block.dragging{cursor:grabbing;box-shadow:0 6px 14px -6px rgba(126,80,120,.5);z-index:5;}
+  .tl-block .bl{font-size:10.5px;font-weight:600;line-height:1.2;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .tl-block .bt{font-size:9px;color:var(--ink-soft);font-variant-numeric:tabular-nums;margin-top:1px;}
+  .tl-block .rz{position:absolute;left:0;right:0;bottom:0;height:9px;cursor:ns-resize;touch-action:none;}
+  .tl-block .rz::after{content:"";position:absolute;left:50%;bottom:2px;width:16px;height:2px;background:rgba(74,63,73,.28);border-radius:2px;transform:translateX(-50%);}
+  .tl-block .bx{position:absolute;top:0;right:2px;font-size:12px;color:rgba(74,63,73,.4);cursor:pointer;line-height:1.4;opacity:0;}
+  .tl-block:hover .bx{opacity:1;}
+  .tl-block .bx:hover{color:#C85C7A;}
+  .tl-ghost{position:absolute;left:2px;right:2px;border:1.5px dashed var(--accent);border-radius:7px;background:rgba(181,123,166,.14);pointer-events:none;z-index:6;}
+  .tl-empty{position:absolute;top:6px;left:4px;right:2px;font-size:10.5px;color:var(--ink-faint);line-height:1.45;}
+  .task .sched{font-size:10px;font-weight:700;color:var(--accent);background:rgba(181,123,166,.15);border-radius:5px;padding:2px 6px;white-space:nowrap;flex:none;}
+  @media(max-width:760px){.layout{flex-direction:column}.tl-pane{width:100%;flex:none}.tl-scroll{max-height:320px}}
 
   header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
   .title{display:flex;align-items:baseline;gap:10px}
@@ -138,7 +163,7 @@
   .wnav a.home:hover{background:#FBF3F8;}
   .wnav .ico{display:inline-flex;align-items:center}
   .wnav .ico svg{width:16px;height:16px;display:block}
-  @media(max-width:560px){.wnav .lbl{display:none}}
+  .wnav .lbl{display:none}
   .wnav .sp{flex:1;}
   .wnav a[aria-current="page"]{background:var(--nav-on,#F5C4D6);color:#4A3F49;}
   @media(max-width:520px){.wnav a{padding:7px 9px;font-size:12px;}}
@@ -149,12 +174,15 @@
   <a class="home" href="index.html" title="홈"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7"/><path d="M6 10v9h12v-9"/></svg></span></a>
   <a class="icon-only" href="dashboard.html" title="대시보드"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></span></a>
   <span class="sp"></span>
-  <a href="pomodoro.html" style="--d:#8FBEE0"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 1.8"/></svg></span><span class="lbl">뽀모도로</span></a>
-  <a href="routine.html" style="--d:#A99CD8"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9.5h16"/><path d="M8.5 3v4"/><path d="M15.5 3v4"/></svg></span><span class="lbl">루틴</span></a>
-  <a href="todo.html" aria-current="page" style="--d:#E8A0C0"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l2.5 2.5L21 4.5"/><path d="M20.5 12.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h10.5"/></svg></span><span class="lbl">할 일</span></a>
+  <a href="pomodoro.html" title="뽀모도로" style="--d:#8FBEE0"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 1.8"/></svg></span><span class="lbl">뽀모도로</span></a>
+  <a href="routine.html" title="루틴" style="--d:#A99CD8"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9.5h16"/><path d="M8.5 3v4"/><path d="M15.5 3v4"/></svg></span><span class="lbl">루틴</span></a>
+  <a href="todo.html" title="할 일" aria-current="page" style="--d:#E8A0C0"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l2.5 2.5L21 4.5"/><path d="M20.5 12.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h10.5"/></svg></span><span class="lbl">할 일</span></a>
 
-  <a href="papers.html"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9z"/><path d="M13 3v6h6"/><path d="M8.5 13.5h7"/><path d="M8.5 17h7"/></svg></span><span class="lbl">논문</span></a>
-  <a href="jobs.html"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/></svg></span><span class="lbl">잡마켓</span></a>
+  <a href="papers.html" title="논문"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9z"/><path d="M13 3v6h6"/><path d="M8.5 13.5h7"/><path d="M8.5 17h7"/></svg></span><span class="lbl">논문</span></a>
+  <a href="jobs.html" title="잡마켓"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/></svg></span><span class="lbl">잡마켓</span></a>
+  <a href="countdown.html" title="마감 카운트다운"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="7.5"/><path d="M12 9.5V13l2.5 1.6"/><path d="M9.5 2.5h5"/></svg></span><span class="lbl">카운트다운</span></a>
+  <a href="roadmap.html" title="로드맵"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/></svg></span><span class="lbl">로드맵</span></a>
+  <a href="daily.html" title="데일리"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5"/><path d="M12 19v2.5"/><path d="M4.5 12H2"/><path d="M22 12h-2.5"/><path d="M5.5 5.5l1.7 1.7"/><path d="M16.8 16.8l1.7 1.7"/><path d="M5.5 18.5l1.7-1.7"/><path d="M16.8 7.2l1.7-1.7"/></svg></span><span class="lbl">데일리</span></a>
 </nav>
 <div class="wrap">
   <header>
@@ -168,6 +196,12 @@
     </div>
   </header>
 
+  <div class="layout">
+  <aside class="tl-pane">
+    <div class="tl-head">시간표 <button class="tl-clear" id="tlClear" title="시간표 비우기">비우기</button></div>
+    <div class="tl-scroll"><div class="tl-rail" id="tlRail"></div></div>
+  </aside>
+  <div class="todo-pane">
   <div class="chips" id="chips"></div>
 
   <div class="peditor" id="peditor">
@@ -192,6 +226,8 @@
     <span class="stat" id="stat"></span>
     <button class="clear" id="clearDone">완료 정리</button>
   </footer>
+  </div>
+  </div>
 </div>
 
 <input type="file" id="filein" accept="application/json" style="display:none">
@@ -228,8 +264,10 @@
   let data=load();
   let filter="all";
   let pickColor=nextColor();
+  if(!Array.isArray(data.schedule))data.schedule=[];
   const $=id=>document.getElementById(id);
   const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  const START_H=8,END_H=24,HOURPX=42;let ghostMins=null;
 
   function load(){
     try{const s=JSON.parse(localStorage.getItem(KEY));
@@ -349,16 +387,19 @@
       let dueHtml;
       if(t.due){const d=dday(t.due);dueHtml=`<span class="due ${d.cls}">${d.label}</span>`;}
       else{dueHtml=`<span class="due due-none">기한</span>`;}
+      const sb=data.schedule.find(b=>b.taskId===t.id);
+      const schBadge=sb?`<span class="sched" title="시간표 ${hhmm(sb.start)}–${hhmm(sb.end)}">${hhmm(sb.start)}</span>`:"";
       el.innerHTML=`
         <span class="rank">${rankLabel}</span>
         <span class="check" title="완료"></span>
         <span class="txt">${esc(t.text)}</span>
         ${filter==="all"&&p?`<span class="tag">${esc(p.name)}</span>`:""}
         <span class="duewrap" title="${t.due?t.due:'마감일 설정'}">${dueHtml}<input type="date" class="duein" value="${t.due||''}"></span>
+        ${schBadge}
         <span class="edit" title="수정">✎</span>
         <span class="del" title="삭제">×</span>`;
       el.querySelector(".check").onclick=e=>{e.stopPropagation();t.done=!t.done;save();render();};
-      el.querySelector(".del").onclick=e=>{e.stopPropagation();data.tasks=data.tasks.filter(x=>x.id!==t.id);save();render();};
+      el.querySelector(".del").onclick=e=>{e.stopPropagation();data.tasks=data.tasks.filter(x=>x.id!==t.id);data.schedule=data.schedule.filter(b=>b.taskId!==t.id);save();render();};
       const din=el.querySelector(".duein");
       din.addEventListener("click",e=>{e.stopPropagation();openPicker(din);});
       din.addEventListener("change",()=>{t.due=din.value||null;save();render();});
@@ -393,25 +434,32 @@
     input.addEventListener("blur",()=>commit(true));
   }
 
-  function render(){renderChips();renderProjOptions();renderList();renderStat();}
+  function render(){renderChips();renderProjOptions();renderList();renderStat();renderTimeline();}
   function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
 
   /* ---------- pointer drag ---------- */
   function attachDrag(el){
     el.addEventListener("pointerdown",e=>{
-      if(e.target.closest(".check,.del,.duewrap,.duein"))return;
+      if(e.target.closest(".check,.del,.duewrap,.duein,.edit"))return;
       if(el.classList.contains("done"))return;
-      const startY=e.clientY;let started=false;
+      const startY=e.clientY,startX=e.clientX;let started=false,sched=false;
       el.setPointerCapture(e.pointerId);
+      const rail=$("tlRail");
       const move=ev=>{
-        if(!started){if(Math.abs(ev.clientY-startY)<4)return;started=true;el.classList.add("dragging");}
-        const after=afterEl($("list"),ev.clientY);
-        if(after==null)$("list").appendChild(el);else $("list").insertBefore(el,after);
+        if(!started){if(Math.abs(ev.clientY-startY)<4&&Math.abs(ev.clientX-startX)<4)return;started=true;el.classList.add("dragging");}
+        const rb=rail.getBoundingClientRect();
+        const overRail=ev.clientX>=rb.left-6&&ev.clientX<=rb.right+6&&ev.clientY>=rb.top-6&&ev.clientY<=rb.bottom+40;
+        if(overRail){sched=true;showGhost(minsFromClientY(ev.clientY));}
+        else{sched=false;removeGhost();const after=afterEl($("list"),ev.clientY);if(after==null)$("list").appendChild(el);else $("list").insertBefore(el,after);}
       };
       const up=()=>{
         el.releasePointerCapture(e.pointerId);
         el.removeEventListener("pointermove",move);el.removeEventListener("pointerup",up);
-        if(started){el.classList.remove("dragging");commitOrder();}
+        const gm=ghostMins;removeGhost();
+        if(!started){el.classList.remove("dragging");return;}
+        el.classList.remove("dragging");
+        if(sched&&gm!=null){scheduleTask(el.dataset.id,gm);render();}
+        else commitOrder();
       };
       el.addEventListener("pointermove",move);el.addEventListener("pointerup",up);
     });
@@ -426,6 +474,61 @@
     const order=[...$("list").querySelectorAll(".task")].map(e=>e.dataset.id);
     data.tasks.sort((a,b)=>order.indexOf(a.id)-order.indexOf(b.id));
     save();renderList();renderStat();renderChips();
+  }
+
+  /* ---------- timeline ---------- */
+  function hhmm(m){const h=Math.floor(m/60),mm=m%60;return h+":"+String(mm).padStart(2,"0");}
+  function minsFromClientY(y){const rb=$("tlRail").getBoundingClientRect();let m=START_H*60+(y-rb.top)/HOURPX*60;m=Math.round(m/15)*15;return Math.max(START_H*60,Math.min(END_H*60-15,m));}
+  function showGhost(mins){ghostMins=mins;const rail=$("tlRail");let g=rail.querySelector(".tl-ghost");if(!g){g=document.createElement("div");g.className="tl-ghost";rail.appendChild(g);}g.style.top=((mins-START_H*60)/60*HOURPX)+"px";g.style.height=HOURPX+"px";}
+  function removeGhost(){const rail=$("tlRail");if(!rail)return;const g=rail.querySelector(".tl-ghost");if(g)g.remove();ghostMins=null;}
+  function scheduleTask(taskId,start){
+    const ex=data.schedule.find(b=>b.taskId===taskId);
+    if(ex){const dur=ex.end-ex.start;ex.start=start;ex.end=Math.min(start+dur,END_H*60);}
+    else data.schedule.push({id:uid(),taskId,start,end:Math.min(start+60,END_H*60)});
+    save();
+  }
+  function renderTimeline(){
+    const rail=$("tlRail");if(!rail)return;
+    rail.style.height=((END_H-START_H)*HOURPX)+"px";
+    rail.innerHTML="";
+    for(let h=START_H;h<=END_H;h++){
+      const top=(h-START_H)*HOURPX;
+      const ln=document.createElement("div");ln.className="tl-hourline";ln.style.top=top+"px";rail.appendChild(ln);
+      const lb=document.createElement("div");lb.className="tl-hour";lb.style.top=top+"px";lb.textContent=(h%24);rail.appendChild(lb);
+    }
+    const blocks=data.schedule.filter(b=>data.tasks.find(t=>t.id===b.taskId));
+    if(!blocks.length){const e=document.createElement("div");e.className="tl-empty";e.textContent="할 일을 여기로 끌어다 놓으면 시간 블록이 생겨요.";rail.appendChild(e);}
+    blocks.forEach(b=>{
+      const t=data.tasks.find(x=>x.id===b.taskId);const p=proj(t.p);const col=p?p.color:"#C9C2CC";
+      const top=(b.start-START_H*60)/60*HOURPX;const ht=Math.max((b.end-b.start)/60*HOURPX,18);
+      const el=document.createElement("div");el.className="tl-block";
+      el.style.top=top+"px";el.style.height=ht+"px";el.style.background=rgba(col,0.8);el.style.setProperty("--edge",rgba(col,0.95));
+      el.innerHTML=`<div class="bl">${esc(t.text)}</div><div class="bt">${hhmm(b.start)}–${hhmm(b.end)}</div><span class="bx" title="시간표에서 제거">×</span><div class="rz" title="길이 조절"></div>`;
+      el.querySelector(".bx").onclick=ev=>{ev.stopPropagation();data.schedule=data.schedule.filter(x=>x.id!==b.id);save();render();};
+      blockMove(el,b);blockResize(el,b);
+      rail.appendChild(el);
+    });
+  }
+  function blockMove(el,b){
+    el.addEventListener("pointerdown",e=>{
+      if(e.target.closest(".rz,.bx"))return;
+      const dur=b.end-b.start;let moved=false;
+      el.setPointerCapture(e.pointerId);el.classList.add("dragging");
+      const mv=ev=>{moved=true;let m=minsFromClientY(ev.clientY);m=Math.max(START_H*60,Math.min(END_H*60-dur,m));b.start=m;b.end=m+dur;
+        el.style.top=((b.start-START_H*60)/60*HOURPX)+"px";el.querySelector(".bt").textContent=hhmm(b.start)+"–"+hhmm(b.end);};
+      const up=()=>{el.releasePointerCapture(e.pointerId);el.removeEventListener("pointermove",mv);el.removeEventListener("pointerup",up);el.classList.remove("dragging");if(moved){save();renderList();}};
+      el.addEventListener("pointermove",mv);el.addEventListener("pointerup",up);
+    });
+  }
+  function blockResize(el,b){
+    const rz=el.querySelector(".rz");
+    rz.addEventListener("pointerdown",e=>{
+      e.stopPropagation();rz.setPointerCapture(e.pointerId);
+      const mv=ev=>{let m=minsFromClientY(ev.clientY);m=Math.max(b.start+15,Math.min(END_H*60,m));b.end=m;
+        el.style.height=Math.max((b.end-b.start)/60*HOURPX,18)+"px";el.querySelector(".bt").textContent=hhmm(b.start)+"–"+hhmm(b.end);};
+      const up=()=>{rz.releasePointerCapture(e.pointerId);rz.removeEventListener("pointermove",mv);rz.removeEventListener("pointerup",up);save();renderList();};
+      rz.addEventListener("pointermove",mv);rz.addEventListener("pointerup",up);
+    });
   }
 
   /* ---------- add ---------- */
@@ -446,6 +549,7 @@
   };
   $("pname").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.isComposing)$("paddgo").click();});
 
+  $("tlClear").onclick=()=>{if(data.schedule.length&&confirm("시간표를 비울까? (할 일 목록은 그대로 남아요)")){data.schedule=[];save();render();}};
   $("clearDone").onclick=()=>{
     if(!data.tasks.some(t=>t.done))return;
     data.tasks=data.tasks.filter(t=>!t.done);save();render();
@@ -464,6 +568,7 @@
     r.onload=()=>{try{
       const j=JSON.parse(r.result);
       if(!Array.isArray(j.projects)||!Array.isArray(j.tasks))throw 0;
+      if(!Array.isArray(j.schedule))j.schedule=[];
       j.tasks.forEach(t=>{if(t.due===undefined)t.due=null;});
       data=j;filter="all";pickColor=nextColor();save();render();
     }catch(err){alert("파일을 읽지 못했어요. 내보내기로 만든 JSON인지 확인하세요.");}
