@@ -187,8 +187,20 @@ function add(arr,days,start,end,label,cat){days.forEach(d=>arr.push({day:d,start
   add(b,['Mon','Tue','Wed','Thu','Fri','Sat'],'21:00','23:00','Hobby','hobby');
 })();
 
-let state=load();
-function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.blocks)return s;}catch(e){}return structuredClone(DEFAULT);}
+const OLD_CATS={write:'#8AA0BE',research:'#7FA89F',meal:'#CBB36A',selfcare:'#B0A089',hobby:'#C0A0AE',read:'#9DAE8B',workout:'#A6917E',chores:'#8E959B',career:'#C28E72',other:'#A99CC0',meeting:'#D49AA8',project:'#D88E8E'};
+function load(){
+  try{const s=JSON.parse(localStorage.getItem(KEY));
+    if(s&&s.blocks){
+      if(s.cats)for(const k in OLD_CATS){
+        const c=s.cats[k];
+        if(c&&c.color&&c.color.toLowerCase()===OLD_CATS[k].toLowerCase()&&DEFAULT.cats[k])c.color=DEFAULT.cats[k].color;
+      }
+      return s;
+    }
+  }catch(e){}
+  return structuredClone(DEFAULT);
+}
+let state=load();save();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
 
 const css=getComputedStyle(document.documentElement);
