@@ -94,7 +94,7 @@
   .hint{font-size:11px;color:var(--faint);margin:8px 0 0;line-height:1.45;}
 
   /* ---- shared widget nav ---- */
-  .wnav{max-width:var(--nav-max,1180px);margin:0 auto 12px;display:flex;align-items:center;gap:6px;
+  .wnav{flex-wrap:wrap;max-width:var(--nav-max,1180px);margin:0 auto 12px;display:flex;align-items:center;gap:6px;
     background:#fff;border:1px solid #EFE6EE;border-radius:12px;padding:6px;
     box-shadow:0 8px 22px -18px rgba(126,80,120,.35);font-family:'Pretendard',system-ui,sans-serif;}
   .wnav a{display:inline-flex;align-items:center;gap:6px;text-decoration:none;
@@ -102,9 +102,11 @@
     transition:background .14s,color .14s;line-height:1;}
   .wnav a:hover{background:#FBF3F8;color:#4A3F49;}
   .wnav a.home{font-size:16px;padding:7px 10px;}
+  .wnav a.icon-only{padding:7px 9px;}
   .wnav a.home:hover{background:#FBF3F8;}
   .wnav .ico{display:inline-flex;align-items:center}
   .wnav .ico svg{width:16px;height:16px;display:block}
+  @media(max-width:560px){.wnav .lbl{display:none}}
   .wnav .sp{flex:1;}
   .wnav a[aria-current="page"]{background:var(--nav-on,#F5C4D6);color:#4A3F49;}
   @media(max-width:520px){.wnav a{padding:7px 9px;font-size:12px;} .wnav a.lbl-full{display:none;}}
@@ -115,10 +117,14 @@
 <body>
 <nav class="wnav" style="--nav-max:440px;--nav-on:#F5C4D6">
   <a class="home" href="index.html" title="홈"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7"/><path d="M6 10v9h12v-9"/></svg></span></a>
+  <a class="icon-only" href="dashboard.html" title="대시보드"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></span></a>
   <span class="sp"></span>
-  <a href="pomodoro.html" aria-current="page" style="--d:#8FBEE0"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 1.8"/></svg></span>뽀모도로</a>
-  <a href="routine.html" style="--d:#A99CD8"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9.5h16"/><path d="M8.5 3v4"/><path d="M15.5 3v4"/></svg></span>루틴</a>
-  <a href="todo.html" style="--d:#E8A0C0"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l2.5 2.5L21 4.5"/><path d="M20.5 12.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h10.5"/></svg></span>할 일</a>
+  <a href="pomodoro.html" aria-current="page" style="--d:#8FBEE0"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 1.8"/></svg></span><span class="lbl">뽀모도로</span></a>
+  <a href="routine.html" style="--d:#A99CD8"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9.5h16"/><path d="M8.5 3v4"/><path d="M15.5 3v4"/></svg></span><span class="lbl">루틴</span></a>
+  <a href="todo.html" style="--d:#E8A0C0"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l2.5 2.5L21 4.5"/><path d="M20.5 12.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h10.5"/></svg></span><span class="lbl">할 일</span></a>
+
+  <a href="papers.html"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9z"/><path d="M13 3v6h6"/><path d="M8.5 13.5h7"/><path d="M8.5 17h7"/></svg></span><span class="lbl">논문</span></a>
+  <a href="jobs.html"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/></svg></span><span class="lbl">잡마켓</span></a>
 </nav>
 <div class="wrap">
   <header class="top">

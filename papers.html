@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>논문 파이프라인</title>
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&display=swap');
+  :root{
+    --paper:#FCFAFB; --surface:#fff; --ink:#4A3F49; --soft:#7C707C; --faint:#B3A8B3;
+    --rule:#EFE6EE; --rule2:#E4D8E2; --radius:14px; --accent:#C56590;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:var(--paper);}
+  body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;padding:16px;}
+
+  /* ---- shared widget nav ---- */
+  .wnav{flex-wrap:wrap;max-width:1180px;margin:0 auto 12px;display:flex;align-items:center;gap:6px;
+    background:#fff;border:1px solid #EFE6EE;border-radius:12px;padding:6px;
+    box-shadow:0 8px 22px -18px rgba(126,80,120,.35);font-family:'Pretendard',system-ui,sans-serif;}
+  .wnav a{display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+    font-size:13px;font-weight:600;color:#7C707C;padding:7px 12px;border-radius:8px;
+    transition:background .14s,color .14s;line-height:1;}
+  .wnav a:hover{background:#FBF3F8;color:#4A3F49;}
+  .wnav a.home{font-size:16px;padding:7px 10px;}
+  .wnav a.icon-only{padding:7px 9px;}
+  .wnav a.home:hover{background:#FBF3F8;}
+  .wnav .sp{flex:1;}
+  .wnav a[aria-current="page"]{background:#F5C4D6;color:#4A3F49;}
+  .wnav .ico{display:inline-flex;align-items:center}
+  .wnav .ico svg{width:16px;height:16px;display:block}
+  @media(max-width:560px){.wnav .lbl{display:none}}
+
+  .wrap{max-width:1180px;margin:0 auto;background:var(--surface);border:1px solid var(--rule);border-radius:var(--radius);overflow:hidden;box-shadow:0 12px 30px -22px rgba(126,80,120,.32);}
+  header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:16px 20px 12px;border-bottom:1px solid var(--rule);}
+  .title{font-family:'Fredoka',sans-serif;font-weight:500;font-size:22px;margin:0;letter-spacing:0;}
+  .toolbar{display:flex;gap:6px;flex-wrap:wrap;}
+  button.tb{font:inherit;font-size:12.5px;font-weight:500;color:var(--soft);background:var(--surface);border:1px solid var(--rule2);border-radius:9px;padding:6px 11px;cursor:pointer;transition:background .15s,border-color .15s;}
+  button.tb:hover{background:var(--paper);border-color:var(--faint);}
+  button.tb.primary{color:#fff;background:var(--accent);border-color:var(--accent);}
+  button.tb.primary:hover{background:#B0547E;}
+
+  .scroll{overflow-x:auto;padding:16px 20px 20px;}
+  .board{display:flex;gap:12px;min-width:min-content;}
+  .col{flex:0 0 224px;display:flex;flex-direction:column;}
+  .col-head{display:flex;align-items:center;gap:7px;padding:2px 4px 9px;font-size:12.5px;font-weight:600;color:var(--soft);}
+  .col-head .dot{width:9px;height:9px;border-radius:3px;flex:none;}
+  .col-head .cnt{margin-left:auto;font-size:11px;color:var(--faint);font-variant-numeric:tabular-nums;}
+  .cards{display:flex;flex-direction:column;gap:8px;background:var(--paper);border:1px solid var(--rule);border-radius:11px;padding:9px;min-height:80px;flex:1;}
+  .pcard{background:var(--tint);border:1px solid var(--edge);border-left:3px solid var(--c);border-radius:9px;padding:10px 11px;cursor:pointer;transition:transform .1s,box-shadow .12s;}
+  .pcard:hover{transform:translateY(-1px);box-shadow:0 8px 16px -11px rgba(126,80,120,.5);}
+  .pt{font-size:13.5px;font-weight:600;line-height:1.3;color:var(--ink);}
+  .pmeta{font-size:11.5px;color:var(--soft);margin-top:3px;}
+  .ppl{font-size:11px;color:var(--faint);margin-top:2px;}
+  .pfoot{display:flex;align-items:center;gap:6px;margin-top:9px;}
+  .days{font-size:10.5px;color:var(--faint);font-variant-numeric:tabular-nums;background:rgba(255,255,255,.6);border-radius:5px;padding:2px 6px;}
+  .days.warn{color:#B0547E;background:rgba(255,255,255,.8);}
+  .mvwrap{margin-left:auto;display:flex;gap:3px;}
+  .mv{width:24px;height:24px;border:1px solid var(--rule2);background:#fff;color:var(--soft);border-radius:6px;cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;}
+  .mv:hover{background:var(--paper);color:var(--ink);}
+  .mv:disabled{opacity:.3;cursor:default;}
+  .colempty{font-size:11.5px;color:var(--faint);text-align:center;padding:14px 0;}
+
+  .modal-bg{position:absolute;inset:0;background:rgba(74,63,73,.4);display:none;align-items:flex-start;justify-content:center;padding:40px 16px;z-index:10;}
+  .modal-bg.on{display:flex;}
+  .modal{background:var(--surface);border-radius:14px;width:100%;max-width:400px;padding:18px 20px 20px;box-shadow:0 24px 60px -20px rgba(0,0,0,.4);}
+  .modal h3{margin:0 0 14px;font-family:'Fredoka',sans-serif;font-weight:500;font-size:17px;}
+  .field{margin-bottom:11px;}
+  .field label{display:block;font-size:11.5px;font-weight:600;color:var(--soft);margin-bottom:4px;}
+  .field input,.field select,.field textarea{width:100%;font:inherit;font-size:13px;padding:7px 9px;border:1px solid var(--rule2);border-radius:8px;background:var(--surface);color:var(--ink);resize:vertical;}
+  .field textarea{min-height:52px;line-height:1.4;}
+  .modal-actions{display:flex;gap:8px;margin-top:16px;}
+  .modal-actions button{flex:1;font:inherit;font-size:13px;font-weight:500;padding:9px;border-radius:9px;cursor:pointer;border:1px solid var(--rule2);background:var(--surface);color:var(--soft);}
+  .modal-actions .save{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .modal-actions .del{background:#fff;color:#C85C7A;border-color:#ecc6d5;margin-right:auto;flex:0 0 auto;padding:9px 12px;}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+</head>
+<body>
+<nav class="wnav">
+  <a class="home" href="index.html" title="홈"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7"/><path d="M6 10v9h12v-9"/></svg></span></a>
+  <a class="icon-only" href="dashboard.html" title="대시보드"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></span></a>
+  <span class="sp"></span>
+  <a href="pomodoro.html"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 1.8"/></svg></span><span class="lbl">뽀모도로</span></a>
+  <a href="routine.html"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9.5h16"/><path d="M8.5 3v4"/><path d="M15.5 3v4"/></svg></span><span class="lbl">루틴</span></a>
+  <a href="todo.html"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l2.5 2.5L21 4.5"/><path d="M20.5 12.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h10.5"/></svg></span><span class="lbl">할 일</span></a>
+  <a href="papers.html" aria-current="page"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9z"/><path d="M13 3v6h6"/><path d="M8.5 13.5h7"/><path d="M8.5 17h7"/></svg></span><span class="lbl">논문</span></a>
+  <a href="jobs.html"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/></svg></span><span class="lbl">잡마켓</span></a>
+</nav>
+
+<div class="wrap" style="position:relative;">
+  <header class="top">
+    <h1 class="title">Papers</h1>
+    <div class="toolbar">
+      <button class="tb primary" id="addBtn">+ 논문 추가</button>
+      <button class="tb" id="expBtn">내보내기</button>
+      <button class="tb" id="impBtn">가져오기</button>
+    </div>
+  </header>
+  <div class="scroll"><div class="board" id="board"></div></div>
+
+  <div class="modal-bg" id="pModal">
+    <div class="modal">
+      <h3 id="pmTitle">논문 추가</h3>
+      <div class="field"><label>제목</label><input id="f-title" type="text" placeholder="예: 클러스터링 매니스크립트"/></div>
+      <div class="field"><label>저널 / 타겟</label><input id="f-venue" type="text" placeholder="예: Biostatistics (target)"/></div>
+      <div class="field"><label>공동연구자</label><input id="f-people" type="text" placeholder="예: Thierry · Xiaotian"/></div>
+      <div class="field"><label>단계</label><select id="f-stage"></select></div>
+      <div class="field"><label>메모</label><textarea id="f-note" placeholder="상태·다음 할 일 메모"></textarea></div>
+      <div class="modal-actions">
+        <button class="del" id="pmDel">삭제</button>
+        <button id="pmCancel">취소</button>
+        <button class="save" id="pmSave">저장</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const KEY='paper_pipeline_v1';
+const STAGES=[
+  {id:'draft',    name:'초안',      color:'#F5C4D6'},
+  {id:'internal', name:'내부 리뷰', color:'#F8CBC4'},
+  {id:'submitted',name:'제출',      color:'#F6E7B4'},
+  {id:'review',   name:'심사 중',   color:'#BCDCF0'},
+  {id:'revision', name:'수정',      color:'#CBC3F0'},
+  {id:'accepted', name:'게재 확정', color:'#C6E6D6'},
+];
+const now=Date.now();
+const DEFAULT={papers:[
+  {id:'a1',title:'클러스터링 매니스크립트',venue:'Biostatistics (target)',people:'Thierry · Xiaotian · Alvin',note:'continuous 중심, point mass는 appendix. intro/methods부터.',stage:'draft',moved:now},
+  {id:'a2',title:'Paper 1',venue:'',people:'',note:'제출 전 supplementary 파일 훑어보기',stage:'internal',moved:now},
+  {id:'a3',title:'Paper 2 (ECM)',venue:'',people:'Lianming · Dr. Tebbs · Dr. McMahan',note:'Lianming 코멘트 반영 후 수정 → Tebbs·공동저자에게 전달',stage:'revision',moved:now},
+  {id:'a4',title:'Biometrics revision',venue:'Biometrics',people:'Dr. McMahan',note:'revision/edit 봐달라고 요청',stage:'revision',moved:now},
+]};
+
+let state=load();
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&Array.isArray(s.papers))return s;}catch(e){}return structuredClone(DEFAULT);}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+const $=id=>document.getElementById(id);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+function esc(s){return(s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+function stageIdx(id){return STAGES.findIndex(s=>s.id===id);}
+function rgba(hex,a){const h=hex.replace('#','');return `rgba(${parseInt(h.slice(0,2),16)},${parseInt(h.slice(2,4),16)},${parseInt(h.slice(4,6),16)},${a})`;}
+function daysIn(ms){return Math.floor((Date.now()-ms)/86400000);}
+
+const board=$('board');
+function render(){
+  board.innerHTML='';
+  STAGES.forEach(st=>{
+    const col=document.createElement('div');col.className='col';
+    const items=state.papers.filter(p=>p.stage===st.id);
+    const head=document.createElement('div');head.className='col-head';
+    head.innerHTML=`<span class="dot" style="background:${st.color}"></span>${st.name}<span class="cnt">${items.length}</span>`;
+    col.appendChild(head);
+    const cards=document.createElement('div');cards.className='cards';
+    if(!items.length){cards.innerHTML='<div class="colempty">—</div>';}
+    items.forEach(p=>{
+      const idx=stageIdx(p.stage);
+      const d=daysIn(p.moved);
+      const dlabel=d<=0?'오늘':`${d}일째`;
+      const warn=(d>=30)?' warn':'';
+      const card=document.createElement('div');card.className='pcard';
+      card.style.setProperty('--c',st.color);
+      card.style.setProperty('--tint',rgba(st.color,0.18));
+      card.style.setProperty('--edge',rgba(st.color,0.4));
+      card.innerHTML=`
+        <div class="pt">${esc(p.title)}</div>
+        ${p.venue?`<div class="pmeta">${esc(p.venue)}</div>`:''}
+        ${p.people?`<div class="ppl">${esc(p.people)}</div>`:''}
+        <div class="pfoot">
+          <span class="days${warn}" title="이 단계에 들어온 지">${dlabel}</span>
+          <span class="mvwrap">
+            <button class="mv prev" title="이전 단계" ${idx<=0?'disabled':''}>‹</button>
+            <button class="mv next" title="다음 단계" ${idx>=STAGES.length-1?'disabled':''}>›</button>
+          </span>
+        </div>`;
+      card.onclick=()=>openPaper(p.id);
+      card.querySelector('.prev').onclick=e=>{e.stopPropagation();moveStage(p.id,-1);};
+      card.querySelector('.next').onclick=e=>{e.stopPropagation();moveStage(p.id,1);};
+      cards.appendChild(card);
+    });
+    col.appendChild(cards);
+    board.appendChild(col);
+  });
+}
+function moveStage(id,dir){
+  const p=state.papers.find(x=>x.id===id);if(!p)return;
+  const i=stageIdx(p.stage)+dir;
+  if(i<0||i>=STAGES.length)return;
+  p.stage=STAGES[i].id;p.moved=Date.now();save();render();
+}
+
+const pm=$('pModal');let editId=null;
+function fillStageSelect(){const s=$('f-stage');s.innerHTML='';STAGES.forEach(st=>{const o=document.createElement('option');o.value=st.id;o.textContent=st.name;s.appendChild(o);});}
+function openPaper(id){editId=id;fillStageSelect();const p=state.papers.find(x=>x.id===id);
+  $('pmTitle').textContent='논문 수정';
+  $('f-title').value=p.title;$('f-venue').value=p.venue||'';$('f-people').value=p.people||'';
+  $('f-stage').value=p.stage;$('f-note').value=p.note||'';
+  $('pmDel').style.display='';pm.classList.add('on');}
+$('addBtn').onclick=()=>{editId=null;fillStageSelect();
+  $('pmTitle').textContent='논문 추가';$('f-title').value='';$('f-venue').value='';$('f-people').value='';
+  $('f-stage').selectedIndex=0;$('f-note').value='';$('pmDel').style.display='none';pm.classList.add('on');};
+$('pmCancel').onclick=()=>pm.classList.remove('on');
+$('pmDel').onclick=()=>{if(editId!=null){state.papers=state.papers.filter(p=>p.id!==editId);save();render();}pm.classList.remove('on');};
+$('pmSave').onclick=()=>{
+  const title=$('f-title').value.trim();if(!title){alert('제목을 입력하세요.');return;}
+  const venue=$('f-venue').value.trim(),people=$('f-people').value.trim(),note=$('f-note').value.trim(),stage=$('f-stage').value;
+  if(editId!=null){const p=state.papers.find(x=>x.id===editId);
+    if(p.stage!==stage)p.moved=Date.now();
+    p.title=title;p.venue=venue;p.people=people;p.note=note;p.stage=stage;}
+  else state.papers.push({id:uid(),title,venue,people,note,stage,moved:Date.now()});
+  save();render();pm.classList.remove('on');};
+pm.addEventListener('click',e=>{if(e.target===pm)pm.classList.remove('on');});
+
+$('expBtn').onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='paper_pipeline.json';a.click();URL.revokeObjectURL(a.href);};
+$('impBtn').onclick=()=>{const inp=document.createElement('input');inp.type='file';inp.accept='.json,application/json';
+  inp.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
+    r.onload=()=>{try{const s=JSON.parse(r.result);if(Array.isArray(s.papers)){state=s;save();render();}else alert('형식이 맞지 않아요.');}catch(err){alert('읽을 수 없는 파일이에요.');}};r.readAsText(f);};
+  inp.click();};
+
+render();
+</script>
+</body>
+</html>
