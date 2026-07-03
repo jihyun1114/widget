@@ -61,6 +61,8 @@
   .cat-row{display:flex;align-items:center;gap:8px;}
   .cat-row input[type=color]{width:34px;height:34px;padding:2px;border-radius:8px;border:1px solid var(--rule2);background:none;cursor:pointer;flex:none;}
   .cat-row input[type=text]{flex:1;}
+  .cat-row .catdel{flex:none;width:30px;height:30px;border:1px solid var(--rule2);background:#fff;color:var(--faint);border-radius:8px;cursor:pointer;font-size:16px;line-height:1;}
+  .cat-row .catdel:hover{color:#C85C7A;border-color:#ecc6d5;background:#fdf5f8;}
   .modal-actions{display:flex;gap:8px;margin-top:16px;}
   .modal-actions button{flex:1;font:inherit;font-size:13px;font-weight:500;padding:9px;border-radius:9px;cursor:pointer;border:1px solid var(--rule2);background:var(--surface);color:var(--soft);}
   .modal-actions .save{background:var(--accent);color:#fff;border-color:var(--accent);}
@@ -302,19 +304,30 @@ document.getElementById('bmSave').onclick=()=>{
 const cm=document.getElementById('catModal');
 document.getElementById('catBtn').onclick=()=>{renderCatList();cm.classList.add('on');};
 document.getElementById('catClose').onclick=()=>cm.classList.remove('on');
+function commitCatEdits(){
+  document.querySelectorAll('#catList .cat-row').forEach(r=>{const k=r.dataset.k;if(!state.cats[k])return;
+    state.cats[k].name=r.querySelector('.nm').value.trim()||'(이름)';
+    const hx=r.querySelector('.hx').value;state.cats[k].color=/^#[0-9a-fA-F]{6}$/.test(hx)?hx:r.querySelector('input[type=color]').value;});
+}
 function renderCatList(){const wrap=document.getElementById('catList');wrap.innerHTML='';
   Object.entries(state.cats).forEach(([k,v])=>{
     const row=document.createElement('div');row.className='cat-row';row.dataset.k=k;
-    row.innerHTML=`<input type="color" value="${v.color}"><input type="text" class="nm" value="${esc(v.name)}"><input type="text" class="hx" value="${v.color}" style="width:84px;font-family:monospace">`;
+    row.innerHTML=`<input type="color" value="${v.color}"><input type="text" class="nm" value="${esc(v.name)}"><input type="text" class="hx" value="${v.color}" style="width:78px;font-family:monospace"><button class="catdel" title="카테고리 삭제">×</button>`;
     const col=row.querySelector('input[type=color]'),hx=row.querySelector('.hx');
     col.oninput=()=>{hx.value=col.value;};hx.oninput=()=>{if(/^#[0-9a-fA-F]{6}$/.test(hx.value))col.value=hx.value;};
+    row.querySelector('.catdel').onclick=()=>{
+      commitCatEdits();
+      const used=state.blocks.filter(b=>b.cat===k).length;
+      if(used>0 && !confirm(`"${state.cats[k].name}" 카테고리를 삭제하면 이 색을 쓰는 블록 ${used}개도 함께 지워집니다. 계속할까요?`))return;
+      if(used>0) state.blocks=state.blocks.filter(b=>b.cat!==k);
+      delete state.cats[k];
+      save();renderCatList();render();
+    };
     wrap.appendChild(row);
   });}
-document.getElementById('catAdd').onclick=()=>{const k='cat_'+Date.now();state.cats[k]={name:'새 카테고리',color:'#D3C2E8'};renderCatList();};
+document.getElementById('catAdd').onclick=()=>{commitCatEdits();const k='cat_'+Date.now();state.cats[k]={name:'새 카테고리',color:'#D3C2E8'};renderCatList();};
 document.getElementById('catSave').onclick=()=>{
-  document.querySelectorAll('#catList .cat-row').forEach(r=>{const k=r.dataset.k;
-    state.cats[k].name=r.querySelector('.nm').value.trim()||'(이름)';
-    const hx=r.querySelector('.hx').value;state.cats[k].color=/^#[0-9a-fA-F]{6}$/.test(hx)?hx:r.querySelector('input[type=color]').value;});
+  commitCatEdits();
   save();render();cm.classList.remove('on');};
 
 document.getElementById('expBtn').onclick=()=>{
