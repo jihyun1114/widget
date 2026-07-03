@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>마감 카운트다운</title>
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&display=swap');
+  :root{--paper:#FCFAFB;--surface:#fff;--ink:#4A3F49;--soft:#7C707C;--faint:#B3A8B3;--rule:#EFE6EE;--rule2:#E4D8E2;--radius:14px;--accent:#C56590;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:var(--paper);}
+  body{font-family:'Pretendard',system-ui,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;padding:16px;}
+    .wnav{flex-wrap:wrap;max-width:1180px;margin:0 auto 12px;display:flex;align-items:center;gap:6px;
+    background:#fff;border:1px solid #EFE6EE;border-radius:12px;padding:6px;
+    box-shadow:0 8px 22px -18px rgba(126,80,120,.35);}
+  .wnav a{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-size:13px;font-weight:600;color:#7C707C;padding:7px 12px;border-radius:8px;transition:background .14s,color .14s;line-height:1;}
+  .wnav a:hover{background:#FBF3F8;color:#4A3F49;}
+  .wnav a.icon-only{padding:7px 9px;}
+  .wnav .sp{flex:1;}
+  .wnav a[aria-current="page"]{background:#F5C4D6;color:#4A3F49;}
+  .wnav .ico{display:inline-flex;align-items:center}
+  .wnav .ico svg{width:16px;height:16px;display:block}
+  .wnav .lbl{display:none}
+  .wrap{max-width:900px;margin:0 auto;background:var(--surface);border:1px solid var(--rule);border-radius:var(--radius);overflow:hidden;box-shadow:0 12px 30px -22px rgba(126,80,120,.32);}
+  header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:16px 20px 12px;border-bottom:1px solid var(--rule);}
+  .title{font-family:'Fredoka',sans-serif;font-weight:500;font-size:22px;margin:0;}
+  .toolbar{display:flex;gap:6px;flex-wrap:wrap;}
+  button.tb{font:inherit;font-size:12.5px;font-weight:500;color:var(--soft);background:var(--surface);border:1px solid var(--rule2);border-radius:9px;padding:6px 11px;cursor:pointer;}
+  button.tb:hover{background:var(--paper);border-color:var(--faint);}
+  button.tb.primary{color:#fff;background:var(--accent);border-color:var(--accent);}
+  button.tb.primary:hover{background:#B0547E;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;padding:18px 20px 22px;}
+  .cd{border:1px solid var(--edge);border-radius:12px;padding:15px 16px;background:var(--tint);cursor:pointer;position:relative;transition:transform .1s,box-shadow .12s;overflow:hidden;}
+  .cd:hover{transform:translateY(-2px);box-shadow:0 10px 20px -13px rgba(126,80,120,.55);}
+  .cd::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c);}
+  .cd .tag{font-size:10.5px;font-weight:600;color:var(--soft);background:rgba(255,255,255,.6);border-radius:5px;padding:2px 7px;display:inline-block;}
+  .cd .dnum{font-family:'Fredoka',sans-serif;font-weight:600;font-size:34px;line-height:1;margin:9px 0 2px;color:var(--ink);}
+  .cd .ct{font-size:13.5px;font-weight:600;color:var(--ink);}
+  .cd .cdate{font-size:11.5px;color:var(--soft);margin-top:2px;}
+  .cd .cnote{font-size:11px;color:var(--faint);margin-top:5px;}
+  .cd.past{opacity:.5;}
+  .cd.past .dnum{color:var(--soft);}
+  .cd.soon .dnum{color:#B0547E;}
+  .empty{grid-column:1/-1;text-align:center;color:var(--faint);font-size:13px;padding:22px 0;}
+  .modal-bg{position:fixed;inset:0;background:rgba(74,63,73,.4);display:none;align-items:flex-start;justify-content:center;padding:24px 16px;z-index:50;overflow:auto;-webkit-overflow-scrolling:touch;}
+  .modal-bg.on{display:flex;}
+  .modal{background:var(--surface);border-radius:14px;width:100%;max-width:380px;padding:18px 20px 20px;box-shadow:0 24px 60px -20px rgba(0,0,0,.4);}
+  .modal h3{margin:0 0 14px;font-family:'Fredoka',sans-serif;font-weight:500;font-size:17px;}
+  .field{margin-bottom:11px;}
+  .field label{display:block;font-size:11.5px;font-weight:600;color:var(--soft);margin-bottom:4px;}
+  .field input,.field textarea{width:100%;font:inherit;font-size:13px;padding:7px 9px;border:1px solid var(--rule2);border-radius:8px;background:var(--surface);color:var(--ink);resize:vertical;}
+  .sw{display:flex;gap:7px;flex-wrap:wrap;}
+  .sw span{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;}
+  .sw span.sel{border-color:var(--ink);transform:scale(1.08);}
+  .modal-actions{display:flex;gap:8px;margin-top:16px;}
+  .modal-actions button{flex:1;font:inherit;font-size:13px;font-weight:500;padding:9px;border-radius:9px;cursor:pointer;border:1px solid var(--rule2);background:var(--surface);color:var(--soft);}
+  .modal-actions .save{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .modal-actions .del{background:#fff;color:#C85C7A;border-color:#ecc6d5;margin-right:auto;flex:0 0 auto;padding:9px 12px;}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+</head>
+<body>
+<nav class="wnav">
+  <a class="home icon-only" href="index.html" title="홈"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7"/><path d="M6 10v9h12v-9"/></svg></span></a>
+  <a class="icon-only" href="dashboard.html" title="대시보드"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></span></a>
+  <span class="sp"></span>
+  <a href="pomodoro.html" title="뽀모도로"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 1.8"/></svg></span><span class="lbl">뽀모도로</span></a>
+  <a href="routine.html" title="루틴"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9.5h16"/><path d="M8.5 3v4"/><path d="M15.5 3v4"/></svg></span><span class="lbl">루틴</span></a>
+  <a href="todo.html" title="할 일"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l2.5 2.5L21 4.5"/><path d="M20.5 12.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h10.5"/></svg></span><span class="lbl">할 일</span></a>
+  <a href="papers.html" title="논문"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9z"/><path d="M13 3v6h6"/><path d="M8.5 13.5h7"/><path d="M8.5 17h7"/></svg></span><span class="lbl">논문</span></a>
+  <a href="jobs.html" title="잡마켓"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/></svg></span><span class="lbl">잡마켓</span></a>
+  <a href="countdown.html" title="마감 카운트다운" aria-current="page"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="7.5"/><path d="M12 9.5V13l2.5 1.6"/><path d="M9.5 2.5h5"/></svg></span><span class="lbl">카운트다운</span></a>
+  <a href="roadmap.html" title="로드맵"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/></svg></span><span class="lbl">로드맵</span></a>
+  <a href="daily.html" title="데일리"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5"/><path d="M12 19v2.5"/><path d="M4.5 12H2"/><path d="M22 12h-2.5"/><path d="M5.5 5.5l1.7 1.7"/><path d="M16.8 16.8l1.7 1.7"/><path d="M5.5 18.5l1.7-1.7"/><path d="M16.8 7.2l1.7-1.7"/></svg></span><span class="lbl">데일리</span></a>
+</nav>
+<div class="wrap" style="position:relative;">
+  <header class="top">
+    <h1 class="title">Countdown</h1>
+    <div class="toolbar">
+      <button class="tb primary" id="addBtn">+ 마감 추가</button>
+      <button class="tb" id="expBtn">내보내기</button>
+      <button class="tb" id="impBtn">가져오기</button>
+    </div>
+  </header>
+  <div class="grid" id="grid"></div>
+
+  <div class="modal-bg" id="cModal">
+    <div class="modal">
+      <h3 id="cmTitle">마감 추가</h3>
+      <div class="field"><label>이름</label><input id="f-title" type="text" placeholder="예: JSM 2026 초록 마감"/></div>
+      <div class="field"><label>날짜</label><input id="f-date" type="date"/></div>
+      <div class="field"><label>태그</label><input id="f-tag" type="text" placeholder="예: 학회 / 마감 / 잡마켓"/></div>
+      <div class="field"><label>색</label><div class="sw" id="f-sw"></div></div>
+      <div class="field"><label>메모</label><textarea id="f-note" placeholder="장소·비고 등"></textarea></div>
+      <div class="modal-actions"><button class="del" id="cmDel">삭제</button><button id="cmCancel">취소</button><button class="save" id="cmSave">저장</button></div>
+    </div>
+  </div>
+</div>
+<script>
+const KEY='deadline_countdown_v1';
+const PALETTE=["#F5C4D6","#F8CBC4","#F6E7B4","#C6E6D6","#BCDCF0","#CBC3F0","#EAC6E6"];
+const now=Date.now();
+const DEFAULT={items:[
+  {id:'d1',title:'JSM 2026',date:'2026-08-02',tag:'학회',color:'#BCDCF0',note:'(예시 — 날짜·내용 수정하세요)'},
+  {id:'d2',title:'ENAR 2027 초록 마감',date:'2026-09-15',tag:'마감',color:'#F5C4D6',note:'(예시)'},
+  {id:'d3',title:'잡 지원 1차 마감',date:'2026-10-15',tag:'잡마켓',color:'#C6E6D6',note:'(예시)'},
+]};
+let state=load();
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&Array.isArray(s.items))return s;}catch(e){}return structuredClone(DEFAULT);}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+const $=id=>document.getElementById(id);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+function esc(s){return(s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+function rgba(hex,a){const h=hex.replace('#','');return `rgba(${parseInt(h.slice(0,2),16)},${parseInt(h.slice(2,4),16)},${parseInt(h.slice(4,6),16)},${a})`;}
+function diffDays(date){const t=new Date();t.setHours(0,0,0,0);return Math.round((new Date(date+'T00:00:00')-t)/86400000);}
+function fmtDate(d){const dt=new Date(d+'T00:00:00');return `${dt.getMonth()+1}월 ${dt.getDate()}일 (${['일','월','화','수','목','금','토'][dt.getDay()]})`;}
+
+function render(){
+  const g=$('grid');g.innerHTML='';
+  const items=[...state.items].sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);
+  if(!items.length){g.innerHTML='<div class="empty">마감 없음. + 로 추가하세요.</div>';return;}
+  items.forEach(it=>{
+    const diff=diffDays(it.date);
+    const past=diff<0;const soon=diff>=0&&diff<=7;
+    const label=diff===0?'D-DAY':diff>0?('D-'+diff):('지남 '+(-diff)+'일');
+    const el=document.createElement('div');
+    el.className='cd'+(past?' past':'')+(soon?' soon':'');
+    el.style.setProperty('--c',it.color);el.style.setProperty('--tint',rgba(it.color,0.16));el.style.setProperty('--edge',rgba(it.color,0.38));
+    el.innerHTML=`${it.tag?`<span class="tag">${esc(it.tag)}</span>`:''}
+      <div class="dnum">${label}</div>
+      <div class="ct">${esc(it.title)}</div>
+      <div class="cdate">${fmtDate(it.date)}</div>
+      ${it.note?`<div class="cnote">${esc(it.note)}</div>`:''}`;
+    el.onclick=()=>openItem(it.id);
+    g.appendChild(el);
+  });
+}
+const cm=$('cModal');let editId=null,pickColor=PALETTE[0];
+function renderSw(){const w=$('f-sw');w.innerHTML='';PALETTE.forEach(c=>{const s=document.createElement('span');s.style.background=c;if(c===pickColor)s.className='sel';s.onclick=()=>{pickColor=c;renderSw();};w.appendChild(s);});}
+function openItem(id){editId=id;const it=state.items.find(x=>x.id===id);pickColor=it.color;
+  $('cmTitle').textContent='마감 수정';$('f-title').value=it.title;$('f-date').value=it.date;$('f-tag').value=it.tag||'';$('f-note').value=it.note||'';
+  renderSw();$('cmDel').style.display='';cm.classList.add('on');}
+$('addBtn').onclick=()=>{editId=null;pickColor=PALETTE[0];
+  $('cmTitle').textContent='마감 추가';$('f-title').value='';$('f-date').value='';$('f-tag').value='';$('f-note').value='';
+  renderSw();$('cmDel').style.display='none';cm.classList.add('on');};
+$('cmCancel').onclick=()=>cm.classList.remove('on');
+$('cmDel').onclick=()=>{if(editId!=null){state.items=state.items.filter(x=>x.id!==editId);save();render();}cm.classList.remove('on');};
+$('cmSave').onclick=()=>{const title=$('f-title').value.trim(),date=$('f-date').value;
+  if(!title||!date){alert('이름과 날짜를 입력하세요.');return;}
+  const tag=$('f-tag').value.trim(),note=$('f-note').value.trim();
+  if(editId!=null)Object.assign(state.items.find(x=>x.id===editId),{title,date,tag,note,color:pickColor});
+  else state.items.push({id:uid(),title,date,tag,note,color:pickColor});
+  save();render();cm.classList.remove('on');};
+cm.addEventListener('click',e=>{if(e.target===cm)cm.classList.remove('on');});
+$('expBtn').onclick=()=>{const b=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='deadline_countdown.json';a.click();URL.revokeObjectURL(a.href);};
+$('impBtn').onclick=()=>{const i=document.createElement('input');i.type='file';i.accept='.json,application/json';i.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const s=JSON.parse(r.result);if(Array.isArray(s.items)){state=s;save();render();}else alert('형식이 맞지 않아요.');}catch(err){alert('읽을 수 없는 파일이에요.');}};r.readAsText(f);};i.click();};
+render();
+</script>
+</body>
+</html>
