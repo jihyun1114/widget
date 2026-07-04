@@ -69,12 +69,18 @@
   .heatlabel{font-size:10.5px;color:var(--faint);margin-top:7px;text-align:right;}
 
   /* journal */
-  .jinput{width:100%;font:inherit;font-size:13.5px;padding:10px 11px;border:1px solid var(--rule2);border-radius:10px;background:var(--surface);color:var(--ink);resize:vertical;min-height:44px;line-height:1.4;}
+  .head-r{display:flex;align-items:center;gap:10px;}
+  .xbtn{font:inherit;font-size:11.5px;font-weight:600;color:var(--soft);background:var(--surface);border:1px solid var(--rule2);border-radius:8px;padding:5px 10px;cursor:pointer;}
+  .xbtn:hover{background:#FBF3F8;color:var(--ink);border-color:var(--accent);}
   .jinput:focus{outline:none;border-color:#C9A9C0;}
   .jlist{margin-top:10px;display:flex;flex-direction:column;gap:0;}
   .jentry{padding:8px 0;border-top:1px solid var(--rule);font-size:12.5px;color:var(--ink);display:flex;gap:9px;}
   .jentry .jd{color:var(--faint);white-space:nowrap;font-variant-numeric:tabular-nums;flex:none;}
+  .jentry{align-items:center;}
   .jentry .jt{flex:1;line-height:1.4;}
+  .jentry .jx{color:var(--faint);cursor:pointer;font-size:14px;padding:0 3px;opacity:0;flex:none;line-height:1;}
+  .jentry:hover .jx{opacity:1;}
+  .jentry .jx:hover{color:#C85C7A;}
   .jentry.jtoday-entry{background:rgba(181,123,166,.08);margin:0 -6px;padding-left:6px;padding-right:6px;border-radius:8px;border-top-color:transparent;}
   .jentry.jtoday-entry .jd{color:var(--accent);font-weight:700;}
   .jempty{font-size:12px;color:var(--faint);padding:6px 0;}
@@ -96,7 +102,7 @@
   <a href="daily.html" title="데일리" aria-current="page"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5"/><path d="M12 19v2.5"/><path d="M4.5 12H2"/><path d="M22 12h-2.5"/><path d="M5.5 5.5l1.7 1.7"/><path d="M16.8 16.8l1.7 1.7"/><path d="M5.5 18.5l1.7-1.7"/><path d="M16.8 7.2l1.7-1.7"/></svg></span><span class="lbl">데일리</span></a>
 </nav>
 <div class="dash">
-  <div class="head"><h1>Daily</h1><span class="dt" id="today"></span></div>
+  <div class="head"><h1>Daily</h1><div class="head-r"><button class="xbtn" id="xlsx" title="기분+일기 엑셀로 저장">엑셀로 저장</button><span class="dt" id="today"></span></div></div>
 
   <div class="card">
     <h2>올해 진행<span class="tiny" id="yleft"></span></h2>
@@ -118,7 +124,7 @@
 
   <div class="card">
     <h2>한 줄 일기<span class="tiny" id="jtoday"></span></h2>
-    <textarea class="jinput" id="jinput" placeholder="오늘 한 줄 · 감사한 것… (자동 저장돼요)" rows="1"></textarea>
+    <div class="addrow"><input id="jinput" type="text" placeholder="오늘 한 줄 · 감사한 것…" maxlength="140"><button id="jAdd">추가</button></div>
     <div class="jlist" id="jlist"></div>
   </div>
 </div>
@@ -135,15 +141,17 @@ const DEFAULT={habits:[
   {id:'h1',name:'운동',done:{}},
   {id:'h2',name:'논문 읽기',done:{}},
   {id:'h3',name:'물 마시기',done:{}},
-],moods:{},journal:{}};
+],moods:{},journal:[]};
 let state=load();
-function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&Array.isArray(s.habits))return Object.assign({moods:{},journal:{}},s);}catch(e){}return structuredClone(DEFAULT);}
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&Array.isArray(s.habits))return Object.assign({moods:{},journal:[]},s);}catch(e){}return structuredClone(DEFAULT);}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
 const $=id=>document.getElementById(id);
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 function esc(s){return(s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
 function ds(d){const x=new Date(d);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');}
 const TODAY=ds(new Date());
+if(state.journal&&!Array.isArray(state.journal)){state.journal=Object.entries(state.journal).map(([date,text])=>({id:uid(),date,text}));save();}
+if(!Array.isArray(state.journal))state.journal=[];
 
 /* year progress */
 function renderYear(){
@@ -217,23 +225,53 @@ function renderMood(){
 }
 
 /* journal */
-const ji=$('jinput');
+const ji=$('jinput');const WD2=['일','월','화','수','목','금','토'];
 function jdateText(){return '오늘 · '+new Date().toLocaleDateString('ko-KR',{month:'long',day:'numeric'});}
+function dLabel(k){if(k===TODAY)return '오늘';const dt=new Date(k+'T00:00:00');return (dt.getMonth()+1)+'/'+dt.getDate()+' ('+WD2[dt.getDay()]+')';}
 function renderJList(){
+  document.getElementById('jtoday').textContent=jdateText();
   const list=$('jlist');list.innerHTML='';
-  const keys=Object.keys(state.journal).filter(k=>state.journal[k]).sort().reverse().slice(0,8);
-  if(!keys.length){list.innerHTML='<div class="jempty">여기에 날짜별로 차곡차곡 쌓여요.</div>';return;}
-  keys.forEach(k=>{const e=document.createElement('div');e.className='jentry'+(k===TODAY?' jtoday-entry':'');
-    const lbl=k===TODAY?'오늘':k.slice(5);
-    e.innerHTML=`<span class="jd">${lbl}</span><span class="jt">${esc(state.journal[k])}</span>`;list.appendChild(e);});
+  const cutoff=ds(new Date(Date.now()-4*86400000));
+  const items=state.journal.filter(e=>e.date>=cutoff).sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:0);
+  if(!items.length){list.innerHTML='<div class="jempty">최근 5일 기록이 여기 쌓여요.</div>';return;}
+  items.forEach(e=>{const row=document.createElement('div');row.className='jentry'+(e.date===TODAY?' jtoday-entry':'');
+    row.innerHTML=`<span class="jd">${dLabel(e.date)}</span><span class="jt">${esc(e.text)}</span><span class="jx" title="삭제">×</span>`;
+    row.querySelector('.jx').onclick=()=>{state.journal=state.journal.filter(x=>x.id!==e.id);save();renderJList();};
+    list.appendChild(row);});
 }
-function renderJournal(){document.getElementById('jtoday').textContent=jdateText();ji.value=state.journal[TODAY]||'';renderJList();}
-let jtimer=null,jflash=null;
-function flashSaved(){const el=document.getElementById('jtoday');el.textContent='저장됨 ✓';el.style.color='var(--accent)';clearTimeout(jflash);jflash=setTimeout(()=>{el.textContent=jdateText();el.style.color='';},1200);}
-function saveJournal(flash){const v=ji.value.trim();if(v)state.journal[TODAY]=v;else delete state.journal[TODAY];save();if(flash)flashSaved();}
-ji.addEventListener('input',()=>{clearTimeout(jtimer);jtimer=setTimeout(()=>{saveJournal(true);renderJList();},350);});
-ji.addEventListener('blur',()=>{clearTimeout(jtimer);saveJournal(false);renderJList();});
-ji.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){if(e.isComposing)return;e.preventDefault();clearTimeout(jtimer);saveJournal(true);renderJList();ji.blur();}});
+function renderJournal(){renderJList();}
+function addJournal(){const v=ji.value.trim();if(!v)return;state.journal.push({id:uid(),date:TODAY,text:v});ji.value='';save();renderJList();}
+$('jAdd').onclick=addJournal;
+ji.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();addJournal();}});
+
+/* ---- export mood + journal to Excel ---- */
+function loadXLSX(){return new Promise((res,rej)=>{if(window.XLSX)return res(window.XLSX);const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';sc.onload=()=>window.XLSX?res(window.XLSX):rej();sc.onerror=rej;document.head.appendChild(sc);});}
+function buildRows(){
+  const rows=[['날짜','요일','기분','한 줄 일기']];
+  const jByDate={};state.journal.forEach(e=>{(jByDate[e.date]=jByDate[e.date]||[]).push(e.text);});
+  const dates=[...new Set([...Object.keys(state.moods||{}),...Object.keys(jByDate)])].sort();
+  dates.forEach(d=>{
+    const dt=new Date(d+'T00:00:00');const wd=WD2[dt.getDay()];
+    const mood=(MOODS.find(m=>m.id===state.moods[d])||{}).label||'';
+    const texts=jByDate[d]||[''];
+    texts.forEach(t=>rows.push([d,wd,mood,t]));
+  });
+  return rows;
+}
+function exportXlsx(){
+  const rows=buildRows();
+  if(rows.length===1){alert('내보낼 기분·일기 기록이 없어요.');return;}
+  loadXLSX().then(XLSX=>{
+    const ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:12},{wch:6},{wch:8},{wch:55}];
+    const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Daily');
+    XLSX.writeFile(wb,'daily_log.xlsx');
+  }).catch(()=>{
+    const csv='\ufeff'+rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const b=new Blob([csv],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='daily_log.csv';a.click();URL.revokeObjectURL(a.href);
+    alert('엑셀 라이브러리를 못 불러와서 CSV로 저장했어요 (엑셀에서 열려요).');
+  });
+}
+document.getElementById('xlsx').onclick=exportXlsx;
 
 function renderTop(){$('today').textContent=new Date().toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'long'});}
 renderTop();renderYear();renderHabits();renderMood();renderJournal();
