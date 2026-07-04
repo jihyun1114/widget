@@ -75,6 +75,8 @@
   .jentry{padding:8px 0;border-top:1px solid var(--rule);font-size:12.5px;color:var(--ink);display:flex;gap:9px;}
   .jentry .jd{color:var(--faint);white-space:nowrap;font-variant-numeric:tabular-nums;flex:none;}
   .jentry .jt{flex:1;line-height:1.4;}
+  .jentry.jtoday-entry{background:rgba(181,123,166,.08);margin:0 -6px;padding-left:6px;padding-right:6px;border-radius:8px;border-top-color:transparent;}
+  .jentry.jtoday-entry .jd{color:var(--accent);font-weight:700;}
   .jempty{font-size:12px;color:var(--faint);padding:6px 0;}
   @media (prefers-reduced-motion:reduce){*{transition:none!important;}}
 </style>
@@ -116,7 +118,7 @@
 
   <div class="card">
     <h2>한 줄 일기<span class="tiny" id="jtoday"></span></h2>
-    <textarea class="jinput" id="jinput" placeholder="오늘 한 줄 · 감사한 것…" rows="1"></textarea>
+    <textarea class="jinput" id="jinput" placeholder="오늘 한 줄 · 감사한 것… (자동 저장돼요)" rows="1"></textarea>
     <div class="jlist" id="jlist"></div>
   </div>
 </div>
@@ -215,19 +217,23 @@ function renderMood(){
 }
 
 /* journal */
-function renderJournal(){
-  document.getElementById('jtoday').textContent='오늘 · '+new Date().toLocaleDateString('ko-KR',{month:'long',day:'numeric'});
-  $('jinput').value=state.journal[TODAY]||'';
-  const list=$('jlist');list.innerHTML='';
-  const keys=Object.keys(state.journal).filter(k=>k!==TODAY&&state.journal[k]).sort().reverse().slice(0,6);
-  if(!keys.length){list.innerHTML='<div class="jempty">지난 기록이 여기 쌓여요.</div>';return;}
-  keys.forEach(k=>{const e=document.createElement('div');e.className='jentry';
-    e.innerHTML=`<span class="jd">${k.slice(5)}</span><span class="jt">${esc(state.journal[k])}</span>`;list.appendChild(e);});
-}
 const ji=$('jinput');
-function saveJournal(){const v=ji.value.trim();if(v)state.journal[TODAY]=v;else delete state.journal[TODAY];save();}
-ji.addEventListener('blur',()=>{saveJournal();renderJournal();});
-ji.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();ji.blur();}});
+function jdateText(){return '오늘 · '+new Date().toLocaleDateString('ko-KR',{month:'long',day:'numeric'});}
+function renderJList(){
+  const list=$('jlist');list.innerHTML='';
+  const keys=Object.keys(state.journal).filter(k=>state.journal[k]).sort().reverse().slice(0,8);
+  if(!keys.length){list.innerHTML='<div class="jempty">여기에 날짜별로 차곡차곡 쌓여요.</div>';return;}
+  keys.forEach(k=>{const e=document.createElement('div');e.className='jentry'+(k===TODAY?' jtoday-entry':'');
+    const lbl=k===TODAY?'오늘':k.slice(5);
+    e.innerHTML=`<span class="jd">${lbl}</span><span class="jt">${esc(state.journal[k])}</span>`;list.appendChild(e);});
+}
+function renderJournal(){document.getElementById('jtoday').textContent=jdateText();ji.value=state.journal[TODAY]||'';renderJList();}
+let jtimer=null,jflash=null;
+function flashSaved(){const el=document.getElementById('jtoday');el.textContent='저장됨 ✓';el.style.color='var(--accent)';clearTimeout(jflash);jflash=setTimeout(()=>{el.textContent=jdateText();el.style.color='';},1200);}
+function saveJournal(flash){const v=ji.value.trim();if(v)state.journal[TODAY]=v;else delete state.journal[TODAY];save();if(flash)flashSaved();}
+ji.addEventListener('input',()=>{clearTimeout(jtimer);jtimer=setTimeout(()=>{saveJournal(true);renderJList();},350);});
+ji.addEventListener('blur',()=>{clearTimeout(jtimer);saveJournal(false);renderJList();});
+ji.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){if(e.isComposing)return;e.preventDefault();clearTimeout(jtimer);saveJournal(true);renderJList();ji.blur();}});
 
 function renderTop(){$('today').textContent=new Date().toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'long'});}
 renderTop();renderYear();renderHabits();renderMood();renderJournal();
