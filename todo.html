@@ -50,6 +50,7 @@
   .tl-ghost{position:absolute;left:2px;right:2px;border:1.5px dashed var(--accent);border-radius:7px;background:rgba(181,123,166,.14);pointer-events:none;z-index:6;}
   .tl-empty{position:absolute;top:6px;left:4px;right:2px;font-size:10.5px;color:var(--ink-faint);line-height:1.45;}
   .task .sched{font-size:10px;font-weight:700;color:var(--accent);background:rgba(181,123,166,.15);border-radius:5px;padding:2px 6px;white-space:nowrap;flex:none;}
+  .drop-ind{height:3px;background:var(--accent);border-radius:2px;margin:3px 2px;box-shadow:0 0 0 1px rgba(181,123,166,.25);}
   @media(max-width:760px){.layout{flex-direction:column}.tl-pane{width:100%;flex:none}.tl-scroll{max-height:320px}}
 
   header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
@@ -442,24 +443,29 @@
     el.addEventListener("pointerdown",e=>{
       if(e.target.closest(".check,.del,.duewrap,.duein,.edit"))return;
       if(el.classList.contains("done"))return;
-      const startY=e.clientY,startX=e.clientX;let started=false,sched=false;
+      const startY=e.clientY,startX=e.clientX;let started=false,sched=false,ind=null;
+      const rail=$("tlRail"),list=$("list");
       el.setPointerCapture(e.pointerId);
-      const rail=$("tlRail");
       const move=ev=>{
         if(!started){if(Math.abs(ev.clientY-startY)<4&&Math.abs(ev.clientX-startX)<4)return;started=true;el.classList.add("dragging");}
         const rb=rail.getBoundingClientRect();
-        const overRail=ev.clientX>=rb.left-6&&ev.clientX<=rb.right+6&&ev.clientY>=rb.top-6&&ev.clientY<=rb.bottom+40;
-        if(overRail){sched=true;showGhost(minsFromClientY(ev.clientY));}
-        else{sched=false;removeGhost();const after=afterEl($("list"),ev.clientY);if(after==null)$("list").appendChild(el);else $("list").insertBefore(el,after);}
+        const overRail=ev.clientX>=rb.left-8&&ev.clientX<=rb.right+8&&ev.clientY>=rb.top-8&&ev.clientY<=rb.bottom+40;
+        if(overRail){sched=true;if(ind){ind.remove();ind=null;}showGhost(minsFromClientY(ev.clientY));}
+        else{
+          sched=false;removeGhost();
+          if(!ind){ind=document.createElement("div");ind.className="drop-ind";}
+          const after=afterEl(list,ev.clientY);
+          if(after==null)list.appendChild(ind);else list.insertBefore(ind,after);
+        }
       };
       const up=()=>{
         el.releasePointerCapture(e.pointerId);
         el.removeEventListener("pointermove",move);el.removeEventListener("pointerup",up);
         const gm=ghostMins;removeGhost();
-        if(!started){el.classList.remove("dragging");return;}
+        if(!started){el.classList.remove("dragging");if(ind)ind.remove();return;}
         el.classList.remove("dragging");
-        if(sched&&gm!=null){scheduleTask(el.dataset.id,gm);render();}
-        else commitOrder();
+        if(sched&&gm!=null){if(ind)ind.remove();scheduleTask(el.dataset.id,gm);render();}
+        else{if(ind){list.insertBefore(el,ind);ind.remove();}commitOrder();}
       };
       el.addEventListener("pointermove",move);el.addEventListener("pointerup",up);
     });
