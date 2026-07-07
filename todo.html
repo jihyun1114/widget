@@ -51,6 +51,22 @@
   .tl-empty{position:absolute;top:6px;left:4px;right:2px;font-size:10.5px;color:var(--ink-faint);line-height:1.45;}
   .task .sched{font-size:10px;font-weight:700;color:var(--accent);background:rgba(181,123,166,.15);border-radius:5px;padding:2px 6px;white-space:nowrap;flex:none;}
   .drop-ind{height:3px;background:var(--accent);border-radius:2px;margin:3px 2px;box-shadow:0 0 0 1px rgba(181,123,166,.25);}
+  /* ---------- weekly planner ---------- */
+  .weekbar{display:flex;gap:8px;overflow-x:auto;margin-bottom:14px;padding-bottom:2px;}
+  .wcol{flex:1 0 108px;min-width:108px;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:7px 7px 8px;display:flex;flex-direction:column;transition:box-shadow .12s,border-color .12s;}
+  .wcol.drop-hover{border-color:var(--accent);box-shadow:0 0 0 2px rgba(181,123,166,.28);}
+  .wcol .wh{font-size:11.5px;font-weight:700;color:var(--ink-soft);display:flex;align-items:center;gap:5px;padding:0 2px 6px;}
+  .wcol .wn{margin-left:auto;font-size:10px;color:var(--ink-faint);font-weight:600;}
+  .wcards{display:flex;flex-direction:column;gap:5px;min-height:46px;flex:1;}
+  .wchip{border:1px solid var(--edge,rgba(0,0,0,.06));border-radius:7px;padding:4px 6px;font-size:10.5px;line-height:1.25;color:var(--ink);cursor:grab;display:flex;align-items:center;gap:4px;touch-action:none;}
+  .wchip.dragging{opacity:.92;box-shadow:0 6px 14px -6px rgba(126,80,120,.5);cursor:grabbing;}
+  .wchip.done{opacity:.5;}
+  .wchip.done .wt{text-decoration:line-through;}
+  .wchip .wt{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;}
+  .wchip .wx{color:rgba(74,63,73,.4);cursor:pointer;font-size:12px;line-height:1;opacity:0;flex:none;}
+  .wchip:hover .wx{opacity:1;}
+  .wchip .wx:hover{color:#C85C7A;}
+  .task .wday{font-size:10px;font-weight:700;color:#7C5E97;background:rgba(155,123,182,.16);border-radius:5px;padding:2px 6px;white-space:nowrap;flex:none;}
   @media(max-width:760px){.layout{flex-direction:column}.tl-pane{width:100%;flex:none}.tl-scroll{max-height:320px}}
 
   header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
@@ -197,6 +213,7 @@
     </div>
   </header>
 
+  <div class="weekbar" id="weekbar"></div>
   <div class="layout">
   <aside class="tl-pane">
     <div class="tl-head">시간표 <button class="tl-clear" id="tlClear" title="시간표 비우기">비우기</button></div>
@@ -266,9 +283,12 @@
   let filter="all";
   let pickColor=nextColor();
   if(!Array.isArray(data.schedule))data.schedule=[];
+  if(!data.week||typeof data.week!=="object"||Array.isArray(data.week))data.week={};
   const $=id=>document.getElementById(id);
   const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
   const START_H=8,END_H=24,HOURPX=42;let ghostMins=null;
+  const WEEK=[["Mon","월"],["Tue","화"],["Wed","수"],["Thu","목"],["Fri","금"],["Sat","토"],["Sun","일"]];
+  const WKR=Object.fromEntries(WEEK);
 
   function load(){
     try{const s=JSON.parse(localStorage.getItem(KEY));
@@ -390,17 +410,18 @@
       else{dueHtml=`<span class="due due-none">기한</span>`;}
       const sb=data.schedule.find(b=>b.taskId===t.id);
       const schBadge=sb?`<span class="sched" title="시간표 ${hhmm(sb.start)}–${hhmm(sb.end)}">${hhmm(sb.start)}</span>`:"";
+      const wd=data.week[t.id];const wdBadge=wd?`<span class="wday" title="이번 주 ${WKR[wd]}요일">${WKR[wd]}</span>`:"";
       el.innerHTML=`
         <span class="rank">${rankLabel}</span>
         <span class="check" title="완료"></span>
         <span class="txt">${esc(t.text)}</span>
         ${filter==="all"&&p?`<span class="tag">${esc(p.name)}</span>`:""}
         <span class="duewrap" title="${t.due?t.due:'마감일 설정'}">${dueHtml}<input type="date" class="duein" value="${t.due||''}"></span>
-        ${schBadge}
+        ${wdBadge}${schBadge}
         <span class="edit" title="수정">✎</span>
         <span class="del" title="삭제">×</span>`;
       el.querySelector(".check").onclick=e=>{e.stopPropagation();t.done=!t.done;save();render();};
-      el.querySelector(".del").onclick=e=>{e.stopPropagation();data.tasks=data.tasks.filter(x=>x.id!==t.id);data.schedule=data.schedule.filter(b=>b.taskId!==t.id);save();render();};
+      el.querySelector(".del").onclick=e=>{e.stopPropagation();data.tasks=data.tasks.filter(x=>x.id!==t.id);data.schedule=data.schedule.filter(b=>b.taskId!==t.id);delete data.week[t.id];save();render();};
       const din=el.querySelector(".duein");
       din.addEventListener("click",e=>{e.stopPropagation();openPicker(din);});
       din.addEventListener("change",()=>{t.due=din.value||null;save();render();});
@@ -435,19 +456,25 @@
     input.addEventListener("blur",()=>commit(true));
   }
 
-  function render(){renderChips();renderProjOptions();renderList();renderStat();renderTimeline();}
+  function render(){renderChips();renderProjOptions();renderList();renderStat();renderTimeline();renderWeek();}
   function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
 
   /* ---------- pointer drag ---------- */
+  function dayAt(cols,x,y){for(const c of cols){const r=c.getBoundingClientRect();if(x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom)return c;}return null;}
   function attachDrag(el){
     el.addEventListener("pointerdown",e=>{
       if(e.target.closest(".check,.del,.duewrap,.duein,.edit"))return;
       if(el.classList.contains("done"))return;
-      const startY=e.clientY,startX=e.clientX;let started=false,sched=false,ind=null;
+      const startY=e.clientY,startX=e.clientX;let started=false,sched=false,ind=null,wday=null;
       const rail=$("tlRail"),list=$("list");
+      const wcols=[...document.querySelectorAll(".wcol")];
+      const clearW=()=>wcols.forEach(c=>c.classList.remove("drop-hover"));
       el.setPointerCapture(e.pointerId);
       const move=ev=>{
         if(!started){if(Math.abs(ev.clientY-startY)<4&&Math.abs(ev.clientX-startX)<4)return;started=true;el.classList.add("dragging");}
+        const wc=dayAt(wcols,ev.clientX,ev.clientY);
+        if(wc){wday=wc.dataset.day;clearW();wc.classList.add("drop-hover");if(ind){ind.remove();ind=null;}removeGhost();sched=false;return;}
+        wday=null;clearW();
         const rb=rail.getBoundingClientRect();
         const overRail=ev.clientX>=rb.left-8&&ev.clientX<=rb.right+8&&ev.clientY>=rb.top-8&&ev.clientY<=rb.bottom+40;
         if(overRail){sched=true;if(ind){ind.remove();ind=null;}showGhost(minsFromClientY(ev.clientY));}
@@ -461,13 +488,54 @@
       const up=()=>{
         el.releasePointerCapture(e.pointerId);
         el.removeEventListener("pointermove",move);el.removeEventListener("pointerup",up);
-        const gm=ghostMins;removeGhost();
+        const gm=ghostMins;removeGhost();clearW();
         if(!started){el.classList.remove("dragging");if(ind)ind.remove();return;}
         el.classList.remove("dragging");
-        if(sched&&gm!=null){if(ind)ind.remove();scheduleTask(el.dataset.id,gm);render();}
+        if(wday){if(ind)ind.remove();data.week[el.dataset.id]=wday;save();render();}
+        else if(sched&&gm!=null){if(ind)ind.remove();scheduleTask(el.dataset.id,gm);render();}
         else{if(ind){list.insertBefore(el,ind);ind.remove();}commitOrder();}
       };
       el.addEventListener("pointermove",move);el.addEventListener("pointerup",up);
+    });
+  }
+  function attachWeekDrag(chip,taskId){
+    chip.addEventListener("pointerdown",e=>{
+      if(e.target.closest(".wx"))return;
+      const sx=e.clientX,sy=e.clientY;let started=false;
+      const cols=[...document.querySelectorAll(".wcol")];
+      chip.setPointerCapture(e.pointerId);
+      const clearW=()=>cols.forEach(c=>c.classList.remove("drop-hover"));
+      const move=ev=>{
+        if(!started){if(Math.abs(ev.clientX-sx)<4&&Math.abs(ev.clientY-sy)<4)return;started=true;chip.classList.add("dragging");}
+        const wc=dayAt(cols,ev.clientX,ev.clientY);clearW();if(wc)wc.classList.add("drop-hover");
+      };
+      const up=ev=>{
+        chip.releasePointerCapture(e.pointerId);chip.removeEventListener("pointermove",move);chip.removeEventListener("pointerup",up);
+        clearW();if(!started)return;
+        const wc=dayAt(cols,ev.clientX,ev.clientY);
+        if(wc){data.week[taskId]=wc.dataset.day;save();render();}
+      };
+      chip.addEventListener("pointermove",move);chip.addEventListener("pointerup",up);
+    });
+  }
+  function renderWeek(){
+    const bar=$("weekbar");if(!bar)return;bar.innerHTML="";
+    WEEK.forEach(([k,kr])=>{
+      const col=document.createElement("div");col.className="wcol";col.dataset.day=k;
+      const n=Object.values(data.week).filter(d=>d===k).length;
+      col.innerHTML=`<div class="wh">${kr}<span class="wn">${n||""}</span></div><div class="wcards"></div>`;
+      const cards=col.querySelector(".wcards");
+      data.tasks.forEach(t=>{
+        if(data.week[t.id]!==k)return;
+        const p=proj(t.p);const c=p?p.color:"#C9C2CC";
+        const chip=document.createElement("div");chip.className="wchip"+(t.done?" done":"");
+        chip.style.background=rgba(c,0.8);chip.style.setProperty("--edge",rgba(c,0.95));
+        chip.innerHTML=`<span class="wt">${esc(t.text)}</span><span class="wx" title="이 요일에서 빼기">×</span>`;
+        chip.querySelector(".wx").onclick=ev=>{ev.stopPropagation();delete data.week[t.id];save();render();};
+        attachWeekDrag(chip,t.id);
+        cards.appendChild(chip);
+      });
+      bar.appendChild(col);
     });
   }
   function afterEl(container,y){
@@ -575,6 +643,7 @@
       const j=JSON.parse(r.result);
       if(!Array.isArray(j.projects)||!Array.isArray(j.tasks))throw 0;
       if(!Array.isArray(j.schedule))j.schedule=[];
+      if(!j.week||typeof j.week!=="object"||Array.isArray(j.week))j.week={};
       j.tasks.forEach(t=>{if(t.due===undefined)t.due=null;});
       data=j;filter="all";pickColor=nextColor();save();render();
     }catch(err){alert("파일을 읽지 못했어요. 내보내기로 만든 JSON인지 확인하세요.");}
